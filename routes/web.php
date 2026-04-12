@@ -4,7 +4,6 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\QuestionnairePlayController;
@@ -40,18 +39,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', [VerifyEmailController::class, 'notice'])->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-    Route::post('email/verification-notification', [VerifyEmailController::class, 'send'])
-        ->middleware('throttle:verification-send')
-        ->name('verification.send');
-
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
-});
 
-Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/questionnaires', [QuestionnaireController::class, 'index'])->name('questionnaires.index');
     Route::get('/questionnaires/create', [QuestionnaireController::class, 'create'])->name('questionnaires.create');
     Route::post('/questionnaires', [QuestionnaireController::class, 'store'])->name('questionnaires.store');

@@ -42,10 +42,6 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->ip());
         });
 
-        RateLimiter::for('verification-send', function (Request $request) {
-            return Limit::perMinute(6)->by($request->user()?->id ?: $request->ip());
-        });
-
         Route::bind('questionnaire', function (string $value) {
             return Questionnaire::query()
                 ->where('uuid', $value)
