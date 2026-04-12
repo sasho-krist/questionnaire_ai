@@ -2,6 +2,10 @@
 
 @section('title', 'Регистрация')
 
+@section('meta_description', 'Регистрация в Questionnaire AI — създавайте анкети и тестове с изкуствен интелект.')
+
+@section('robots', 'noindex, follow')
+
 @section('content')
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">

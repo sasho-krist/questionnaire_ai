@@ -3,7 +3,67 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Questionnaire AI') — {{ config('app.name') }}</title>
+    @php
+        $seoTitle = trim($__env->yieldContent('title'));
+        $pageTitleSegment = $seoTitle !== '' ? $seoTitle : config('seo.default_title');
+        $fullTitle = $pageTitleSegment.' — '.config('app.name');
+        $metaDesc = trim($__env->yieldContent('meta_description'));
+        $metaDescription = $metaDesc !== '' ? $metaDesc : config('seo.description');
+        $canonical = url()->current();
+        $ogRaw = config('seo.og_image');
+        $ogImage = null;
+        if (! empty($ogRaw)) {
+            $ogImage = \Illuminate\Support\Str::startsWith($ogRaw, ['http://', 'https://']) ? $ogRaw : url($ogRaw);
+        }
+    @endphp
+    <title>{{ $fullTitle }}</title>
+    <meta name="description" content="{{ $metaDescription }}">
+    <meta name="keywords" content="{{ config('seo.keywords') }}">
+    <link rel="canonical" href="{{ $canonical }}">
+    @hasSection('robots')
+        <meta name="robots" content="@yield('robots')">
+    @elseif(auth()->check() && ! request()->routeIs('privacy'))
+        <meta name="robots" content="noindex, nofollow">
+    @else
+        <meta name="robots" content="index, follow, max-image-preview:large">
+    @endif
+    <meta name="author" content="sasho-dev">
+    <meta name="theme-color" content="#4f46e5">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:title" content="{{ $fullTitle }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ $canonical }}">
+    <meta property="og:locale" content="bg_BG">
+    @if ($ogImage)
+        <meta property="og:image" content="{{ $ogImage }}">
+    @endif
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $fullTitle }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    @if ($ogImage)
+        <meta name="twitter:image" content="{{ $ogImage }}">
+    @endif
+    @if (config('seo.twitter_site'))
+        <meta name="twitter:site" content="{{ '@'.config('seo.twitter_site') }}">
+    @endif
+
+    @php
+        $schemaLd = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebApplication',
+            'name' => config('app.name'),
+            'url' => config('app.url'),
+            'description' => config('seo.description'),
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'inLanguage' => 'bg',
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($schemaLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
@@ -53,6 +113,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('privacy') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('privacy') }}">
+                                <i class="bi bi-shield-check me-1"></i> Поверителност
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <span class="nav-link px-3 text-white-50 small d-none d-lg-inline">{{ auth()->user()->name }}</span>
                         </li>
                         <li class="nav-item">
@@ -64,6 +129,11 @@
                             </form>
                         </li>
                     @else
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('privacy') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('privacy') }}">
+                                <i class="bi bi-shield-check me-1"></i> Поверителност
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('login') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('login') }}">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Вход
@@ -112,6 +182,11 @@
     <footer class="border-top bg-white py-3 mt-auto">
         <div class="container text-center text-muted small">
             <div>{{ config('app.name') }} · AI-генерирани анкети</div>
+            <div class="mt-2">
+                <a href="{{ route('privacy') }}" class="link-secondary text-decoration-none">Политика за поверителност</a>
+                <span class="text-muted mx-2">·</span>
+                <a href="{{ url('/sitemap.xml') }}" class="link-secondary text-decoration-none">Sitemap</a>
+            </div>
             <div class="mt-2">
                 Created by:
                 <a href="https://sasho-dev.com/" class="link-secondary text-decoration-none" target="_blank" rel="noopener noreferrer">sasho-dev</a>
