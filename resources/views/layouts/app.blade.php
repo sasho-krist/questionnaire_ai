@@ -32,7 +32,7 @@
 <body class="bg-light d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #7c3aed 100%);">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('questionnaires.index') }}">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ auth()->check() ? route('questionnaires.index') : route('login') }}">
                 <i class="bi bi-ui-checks-grid"></i>
                 <span>Questionnaire AI</span>
             </a>
@@ -40,17 +40,41 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto gap-lg-2">
-                    <li class="nav-item">
-                        <a class="nav-link px-3 rounded-pill {{ request()->routeIs('questionnaires.index') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('questionnaires.index') }}">
-                            <i class="bi bi-collection me-1"></i> Анкети
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3 rounded-pill {{ request()->routeIs('questionnaires.create') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('questionnaires.create') }}">
-                            <i class="bi bi-plus-lg me-1"></i> Нова анкета
-                        </a>
-                    </li>
+                <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('questionnaires.index') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('questionnaires.index') }}">
+                                <i class="bi bi-collection me-1"></i> Анкети
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('questionnaires.create') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('questionnaires.create') }}">
+                                <i class="bi bi-plus-lg me-1"></i> Нова анкета
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link px-3 text-white-50 small d-none d-lg-inline">{{ auth()->user()->name }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{{ route('logout') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-link nav-link px-3 rounded-pill text-white text-decoration-none">
+                                    <i class="bi bi-box-arrow-right me-1"></i> Изход
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('login') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Вход
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('register') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('register') }}">
+                                <i class="bi bi-person-plus me-1"></i> Регистрация
+                            </a>
+                        </li>
+                    @endauth
                 </ul>
             </div>
         </div>

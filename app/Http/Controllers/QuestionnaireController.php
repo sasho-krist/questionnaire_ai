@@ -22,10 +22,23 @@ class QuestionnaireController extends Controller
     public function index(): View
     {
         $questionnaires = Questionnaire::query()
+            ->with('user')
             ->latest()
             ->paginate(15);
 
         return view('questionnaires.index', compact('questionnaires'));
+    }
+
+    /**
+     * Редакция, настройки и изтриване — само за създателя на анкетата.
+     */
+    protected function authorizeOwnedQuestionnaire(Questionnaire $questionnaire): void
+    {
+        abort_unless(
+            $questionnaire->user_id !== null && (int) $questionnaire->user_id === (int) auth()->id(),
+            403,
+            'Можете да променяте само анкети, които сте създали.'
+        );
     }
 
     public function create(): View
@@ -56,6 +69,7 @@ class QuestionnaireController extends Controller
         }
 
         $q = Questionnaire::query()->create([
+            'user_id' => auth()->id(),
             'user_title' => $validated['user_title'],
             'topic_keywords' => $validated['topic_keywords'],
             'title_suggestions' => $titles,
@@ -67,6 +81,8 @@ class QuestionnaireController extends Controller
 
     public function titles(Questionnaire $questionnaire): View|RedirectResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status === 'draft') {
             return redirect()->route('questionnaires.create');
         }
@@ -82,6 +98,8 @@ class QuestionnaireController extends Controller
 
     public function selectTitle(Request $request, Questionnaire $questionnaire): RedirectResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status !== 'titles_ready') {
             if (in_array($questionnaire->status, ['building', 'completed'], true)) {
                 return redirect()->route('questionnaires.build', $questionnaire);
@@ -142,6 +160,8 @@ class QuestionnaireController extends Controller
 
     public function build(Questionnaire $questionnaire): View|RedirectResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status === 'titles_ready' && ! $questionnaire->sections()->exists()) {
             return redirect()->route('questionnaires.titles', $questionnaire);
         }
@@ -156,6 +176,8 @@ class QuestionnaireController extends Controller
 
     public function generateMore(Request $request, Questionnaire $questionnaire): RedirectResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status !== 'building') {
             return redirect()->route('questionnaires.build', $questionnaire);
         }
@@ -202,6 +224,8 @@ class QuestionnaireController extends Controller
 
     public function updateSettings(Request $request, Questionnaire $questionnaire): RedirectResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if (! in_array($questionnaire->status, ['building', 'completed'], true)) {
             return redirect()->route('questionnaires.build', $questionnaire);
         }
@@ -225,6 +249,8 @@ class QuestionnaireController extends Controller
 
     public function finish(Questionnaire $questionnaire): RedirectResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status === 'completed') {
             return redirect()->route('questionnaires.index')
                 ->with('status', 'Анкетата вече е маркирана като завършена.');
@@ -238,5 +264,15 @@ class QuestionnaireController extends Controller
 
         return redirect()->route('questionnaires.index')
             ->with('status', 'Анкетата е завършена и е готова за стартиране.');
+    }
+
+    public function destroy(Questionnaire $questionnaire): RedirectResponse
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
+        $questionnaire->delete();
+
+        return redirect()->route('questionnaires.index')
+            ->with('status', 'Анкетата е изтрита.');
     }
 }

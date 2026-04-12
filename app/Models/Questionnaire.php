@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -10,6 +11,7 @@ class Questionnaire extends Model
 {
     protected $fillable = [
         'uuid',
+        'user_id',
         'user_title',
         'topic_keywords',
         'title_suggestions',
@@ -40,6 +42,11 @@ class Questionnaire extends Model
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function sections(): HasMany
