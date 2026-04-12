@@ -25,11 +25,17 @@ class ForgotPasswordController extends Controller
         try {
             $status = Password::sendResetLink($request->only('email'));
         } catch (TransportException $e) {
-            Log::error('Password reset SMTP failed', ['exception' => $e]);
-
-            return back()->withInput($request->only('email'))->withErrors([
-                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Ако портовете са блокирани, превключете на Resend: MAIL_MAILER=resend и RESEND_API_KEY в .env.',
+            Log::error('Password reset mail transport failed', [
+                'exception' => $e,
+                'mail_default' => config('mail.default'),
             ]);
+
+            $msg = match (config('mail.default')) {
+                'resend' => 'Изпращането през Resend не успя. Проверете RESEND_API_KEY и MAIL_FROM_ADDRESS.',
+                default => 'Грешка от SMTP. Ако ползвате Resend в .env, пуснете php artisan config:clear — иначе остава стар smtp. Нужни са MAIL_MAILER=resend, RESEND_API_KEY, MAIL_FROM_ADDRESS.',
+            };
+
+            return back()->withInput($request->only('email'))->withErrors(['email' => $msg]);
         } catch (\Throwable $e) {
             if (ResendInstallChecker::isMissingSdkError($e)) {
                 Log::error('Resend SDK missing on server', ['exception' => $e]);

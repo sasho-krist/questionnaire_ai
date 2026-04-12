@@ -36,11 +36,17 @@ class VerifyEmailController extends Controller
         try {
             $request->user()->sendEmailVerificationNotification();
         } catch (TransportException $e) {
-            Log::error('Email verification SMTP failed', ['exception' => $e]);
-
-            return back()->withErrors([
-                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Често хостингът блокира портове 587/465. Решение: ползвайте изпращане по HTTPS — в .env задайте MAIL_MAILER=resend, RESEND_API_KEY от resend.com и верифициран MAIL_FROM_ADDRESS (вижте .env.example).',
+            Log::error('Email verification mail transport failed', [
+                'exception' => $e,
+                'mail_default' => config('mail.default'),
             ]);
+
+            $email = match (config('mail.default')) {
+                'resend' => 'Изпращането през Resend не успя. Проверете RESEND_API_KEY и задължително задайте MAIL_FROM_ADDRESS (верифициран домейн в Resend или onboarding@resend.dev за тест).',
+                default => 'Това е грешка от SMTP транспорт. Ако в .env вече имате MAIL_MAILER=resend, Laravel вероятно ползва стар кеш — изпълнете: php artisan config:clear (и изтрийте bootstrap/cache/config.php ако съществува). След това задайте RESEND_API_KEY и MAIL_FROM_ADDRESS. За истински SMTP ползвайте хост/порт, които хостингът позволява.',
+            };
+
+            return back()->withErrors(['email' => $email]);
         } catch (\Throwable $e) {
             if (ResendInstallChecker::isMissingSdkError($e)) {
                 Log::error('Resend SDK missing on server', ['exception' => $e]);
