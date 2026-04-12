@@ -2,7 +2,7 @@
 
 Уеб приложение на **Laravel 12** за създаване и провеждане на **тестове/анкети** с множествен избор. Текстовете и въпросите се **генерират с OpenAI (ChatGPT API)**; за всеки въпрос се записват **четири варианта на отговор** и **индекс на верния отговор** (за автоматично точкуване). Има **настройки за точки и времеви лимит**, **страница с резултат** след завършване и преглед на отговорите.
 
-**Допълнително:** регистрация и вход с **ограничаване на опити (throttle)** и логване на неуспешен вход; **забравена/нова парола** (имейл за reset); **публична начална страница**, **ЧЗВ**, **общи условия**, **политика за поверителност**; **банер за бисквитки**; **SEO** (`sitemap.xml`, `robots.txt`, meta/OG); по анкети — **търсене и филтър по статус**, **копие на анкета**, **експорт на резултати като CSV**, **споделяне с линк и QR код** в конструктора (за завършени анкети). За изходяща поща в production е препоръчително **Resend** (HTTPS API), ако SMTP портовете на хостинга са блокирани.
+**Допълнително:** регистрация и вход с **ограничаване на опити (throttle)** и логване на неуспешен вход; **забравена/нова парола** (имейл за reset); **публична начална страница**, **ЧЗВ**, **общи условия**, **политика за поверителност**; **банер за бисквитки**; **SEO** (`sitemap.xml`, `robots.txt`, meta/OG); по анкети — **търсене и филтър по статус**, **копие на анкета**, **експорт на резултати като CSV**, **споделяне с линк и QR код** в конструктора (за завършени анкети).
 
 ---
 
@@ -13,7 +13,7 @@
 - [Клониране от GitHub](#клониране-от-github)
 - [Инсталация](#инсталация)
 - [Конфигурация `.env`](#конфигурация-env)
-- [Имейл: SMTP и Resend](#имейл-smtp-и-resend)
+- [Имейл (SMTP)](#имейл-smtp)
 - [Deploy на сървър](#deploy-на-сървър)
 - [База данни и миграции](#база-данни-и-миграции)
 - [Стартиране](#стартиране)
@@ -62,12 +62,12 @@
 | Компонент | Версия / бележки |
 |-----------|-------------------|
 | PHP | **8.2+** (Laravel 12; за Laravel 13 е нужен PHP 8.3+) |
-| Composer | 2.x (на production задължителен за `vendor/`, вкл. Resend SDK) |
+| Composer | 2.x (на production задължителен за `vendor/`) |
 | Разширения PHP | `openssl`, `pdo`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `curl` |
 | PHP (production) | За `composer` скриптове и част от Artisan: **`proc_open`** не трябва да е в `disable_functions` за CLI (вижте [Deploy на сървър](#deploy-на-сървър)). |
 | Node.js (по избор) | за `npm run build` / Vite и Tailwind в assets |
 | OpenAI | API ключ с достъп до избрания модел (по подразбиране `gpt-4o-mini`) |
-| Имейл (production) | Препоръчително **Resend** (`MAIL_MAILER=resend`) при блокиран SMTP; вижте [Имейл](#имейл-smtp-и-resend). |
+| Имейл (production) | За reset на парола: **SMTP** в `.env`; вижте [Имейл (SMTP)](#имейл-smtp). |
 
 ---
 
@@ -178,19 +178,15 @@ DB_PASSWORD=
 
 ---
 
-## Имейл: SMTP и Resend
+## Имейл (SMTP)
 
 За **връзка за нова парола** (забравена парола) приложението изпраща транзакционни писма. Локално е удобно `MAIL_MAILER=log` (писмата се записват в лога).
 
-**Production:** много хостинги **блокират изходящи SMTP портове** (587/465). Тогава използвайте **Resend** (HTTPS API, без SMTP портове). В проекта са добавени пакетите `resend/resend-laravel` и `resend/resend-php`.
-
 | Променлива | Бележка |
 |------------|---------|
-| `MAIL_MAILER` | `log` (локално), `smtp` (ако хостингът позволява), **`resend`** (препоръчително при блокиран SMTP). |
-| `RESEND_API_KEY` | Ключ от [Resend](https://resend.com) → **API Keys** (започва с `re_`). |
-| `MAIL_FROM_ADDRESS` | **Задължително** при Resend: верифициран адрес от домейн в Resend или за тест `onboarding@resend.dev`. |
-| `MAIL_FROM_NAME` | Име на подател (напр. `${APP_NAME}`). |
-| SMTP при `MAIL_MAILER=smtp` | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION` (`tls` / `ssl`). |
+| `MAIL_MAILER` | `log` (локално) или `smtp` (production). |
+| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Подател (напр. `MAIL_FROM_NAME=${APP_NAME}`). |
+| SMTP | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION` (`tls` / `ssl`). |
 
 След всяка промяна на `.env` на сървъра:
 
@@ -248,8 +244,6 @@ php artisan cache:clear
 php artisan migrate:fresh
 ```
 
-Има миграция за **попълване на `email_verified_at`** за по-стари инсталации (по избор). Новите регистрации записват дата в това поле автоматично.
-
 ---
 
 ## Стартиране
@@ -272,7 +266,7 @@ php artisan serve
 - **Забравена парола:** `/forgot-password` и страница за нова парола с токен от имейл.
 - **Изход** — пренасочване към началната страница.
 
-За reset на парола вижте [Имейл: SMTP и Resend](#имейл-smtp-и-resend).
+За reset на парола вижте [Имейл (SMTP)](#имейл-smtp).
 
 ---
 
@@ -368,8 +362,6 @@ app/
     SeoController.php              # sitemap.xml, robots.txt
     QuestionnaireController.php    # CRUD, филтри, duplicate, export, настройки, генериране
     QuestionnairePlayController.php # опити, отговори, резултат
-  Support/
-    ResendInstallChecker.php      # подсказки при липсващ Resend SDK на сървъра
   Models/
     User.php
     Questionnaire.php
@@ -380,7 +372,7 @@ app/
     OpenAiService.php              # OpenAI + логване при грешки
     AttemptScoringService.php      # изчисляване на score / max_score
   Providers/AppServiceProvider.php # rate limiters за login / имейл
-config/services.php               # OpenAI, Resend key
+config/services.php               # OpenAI
 config/mail.php
 config/seo.php
 routes/web.php
