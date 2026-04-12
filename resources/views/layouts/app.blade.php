@@ -1,8 +1,21 @@
 <!DOCTYPE html>
-<html lang="bg">
+<html lang="bg" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        (function () {
+            try {
+                var k = 'questionnaire_theme';
+                var t = localStorage.getItem(k);
+                if (t === 'dark' || t === 'light') {
+                    document.documentElement.setAttribute('data-bs-theme', t);
+                } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
     @php
         $seoTitle = trim($__env->yieldContent('title'));
         $pageTitleSegment = $seoTitle !== '' ? $seoTitle : config('seo.default_title');
@@ -28,7 +41,7 @@
         <meta name="robots" content="index, follow, max-image-preview:large">
     @endif
     <meta name="author" content="sasho-dev">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#4f46e5" id="meta-theme-color">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ config('app.name') }}">
@@ -70,12 +83,26 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
-        :root {
+        :root, [data-bs-theme="light"] {
             --bs-body-font-family: "DM Sans", system-ui, -apple-system, sans-serif;
             --bs-primary: #4f46e5;
             --bs-primary-rgb: 79, 70, 229;
             --bs-link-color: #4f46e5;
             --bs-link-hover-color: #4338ca;
+            --bs-body-color: #1e293b;
+            --bs-secondary-color: #475569;
+            --bs-secondary-color-rgb: 71, 85, 105;
+            --bs-tertiary-color: #64748b;
+            --bs-tertiary-color-rgb: 100, 116, 139;
+        }
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #0f172a;
+            --bs-body-color: #e2e8f0;
+            --bs-secondary-color: #cbd5e1;
+            --bs-secondary-color-rgb: 203, 213, 225;
+            --bs-tertiary-color: #94a3b8;
+            --bs-border-color: #334155;
+            --bs-card-bg: #1e293b;
         }
         .navbar-brand { font-weight: 600; letter-spacing: -0.02em; }
         .page-header {
@@ -84,12 +111,39 @@
             margin-bottom: 1.75rem;
         }
         .card { border: none; box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.06); }
+        [data-bs-theme="dark"] .card {
+            box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.35);
+        }
         .list-group-item-action:hover { background-color: rgba(79, 70, 229, 0.06); }
+        [data-bs-theme="dark"] .list-group-item-action:hover { background-color: rgba(79, 70, 229, 0.12); }
         .cursor-pointer { cursor: pointer; }
+        #theme-toggle { min-width: 2.5rem; }
+        .landing-lead {
+            color: var(--bs-secondary-color);
+            font-weight: 450;
+        }
+        [data-bs-theme="light"] .landing-lead {
+            color: #334155;
+        }
+        .landing-card-text {
+            color: var(--bs-secondary-color) !important;
+        }
+        [data-bs-theme="light"] .landing-card-text {
+            color: #475569 !important;
+        }
+        .landing-footer-links, .landing-footer-links .link-secondary {
+            color: var(--bs-tertiary-color);
+        }
+        [data-bs-theme="light"] .landing-footer-links, [data-bs-theme="light"] .landing-footer-links .link-secondary {
+            color: #64748b;
+        }
+        [data-bs-theme="light"] .landing-footer-links .link-secondary:hover {
+            color: var(--bs-primary);
+        }
     </style>
     @stack('styles')
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body class="bg-body d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #7c3aed 100%);">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}">
@@ -101,6 +155,12 @@
             </button>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" id="theme-toggle" title="Смяна на тема" aria-label="Смяна на тема: светла или тъмна">
+                            <i class="bi bi-sun-fill d-none" id="theme-icon-light" aria-hidden="true"></i>
+                            <i class="bi bi-moon-stars-fill" id="theme-icon-dark" aria-hidden="true"></i>
+                        </button>
+                    </li>
                     @auth
                         <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('questionnaires.index') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('questionnaires.index') }}">
@@ -204,7 +264,7 @@
         </div>
     </main>
 
-    <footer class="border-top bg-white py-3 mt-auto">
+    <footer class="border-top border-secondary-subtle bg-body py-3 mt-auto">
         <div class="container text-center text-muted small">
             <div>{{ config('app.name') }} · AI-генерирани анкети</div>
             <div class="mt-2">
@@ -231,6 +291,44 @@
     @include('components.cookie-banner')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        (function () {
+            var k = 'questionnaire_theme';
+            var btn = document.getElementById('theme-toggle');
+            var iconL = document.getElementById('theme-icon-light');
+            var iconD = document.getElementById('theme-icon-dark');
+            var meta = document.getElementById('meta-theme-color');
+
+            function currentTheme() {
+                return document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light';
+            }
+
+            function syncIcons() {
+                var dark = currentTheme() === 'dark';
+                iconL.classList.toggle('d-none', !dark);
+                iconD.classList.toggle('d-none', dark);
+                btn.setAttribute('title', dark ? 'Светла тема' : 'Тъмна тема');
+                btn.setAttribute('aria-label', dark ? 'Превключи на светла тема' : 'Превключи на тъмна тема');
+                if (meta) {
+                    meta.setAttribute('content', dark ? '#1e1b4b' : '#4f46e5');
+                }
+            }
+
+            function apply(next) {
+                document.documentElement.setAttribute('data-bs-theme', next);
+                try {
+                    localStorage.setItem(k, next);
+                } catch (e) {}
+                syncIcons();
+            }
+
+            btn.addEventListener('click', function () {
+                apply(currentTheme() === 'dark' ? 'light' : 'dark');
+            });
+
+            syncIcons();
+        })();
+    </script>
     @stack('scripts')
 </body>
 </html>
