@@ -27,7 +27,7 @@ class ForgotPasswordController extends Controller
             Log::error('Password reset SMTP failed', ['exception' => $e]);
 
             return back()->withInput($request->only('email'))->withErrors([
-                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Проверете настройките MAIL_* или дали хостингът позволява изходяща поща на порт 587/465.',
+                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Ако портовете са блокирани, превключете на Resend: MAIL_MAILER=resend и RESEND_API_KEY в .env.',
             ]);
         }
 

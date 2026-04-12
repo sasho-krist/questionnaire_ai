@@ -48,7 +48,7 @@ class RegisterController extends Controller
             Log::error('Registration verification email SMTP failed', ['exception' => $e]);
 
             return redirect()->route('verification.notice')->withErrors([
-                'email' => 'Акаунтът е създаден, но не изпратихме имейл за потвърждение поради проблем с SMTP (често блокиран порт от хостинга). Използвайте „Изпрати отново“ по-долу след като оправите MAIL_* или се свържете с хостинга.',
+                'email' => 'Акаунтът е създаден, но не изпратихме имейл за потвърждение (SMTP недостъпен). Настройте MAIL_MAILER=resend и RESEND_API_KEY, после натиснете „Изпрати отново“.',
             ]);
         }
 

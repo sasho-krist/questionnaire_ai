@@ -38,7 +38,7 @@ class VerifyEmailController extends Controller
             Log::error('Email verification SMTP failed', ['exception' => $e]);
 
             return back()->withErrors([
-                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). На много хостинги изходящите портове 587/465 са блокирани или пощата приема само от определени IP. Проверете с доставчика на хостинг или опитайте друг порт/доставчик на поща.',
+                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Често хостингът блокира портове 587/465. Решение: ползвайте изпращане по HTTPS — в .env задайте MAIL_MAILER=resend, RESEND_API_KEY от resend.com и верифициран MAIL_FROM_ADDRESS (вижте .env.example).',
             ]);
         }
 
