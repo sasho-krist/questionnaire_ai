@@ -5,8 +5,8 @@
 @section('content')
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-3 mb-4">
         <div class="page-header mb-0 py-0">
-            <h1 class="h2 fw-bold text-dark mb-1">Генерирани анкети</h1>
-            <p class="text-secondary mb-0 small">Преглед на всички анкети; редакция и изтриване само на вашите.</p>
+            <h1 class="h2 fw-bold text-body-emphasis mb-1">Генерирани анкети</h1>
+            <p class="text-body-secondary mb-0 small">Преглед на всички анкети; редакция и изтриване само на вашите.</p>
         </div>
         <a href="{{ route('questionnaires.create') }}" class="btn btn-primary btn-lg shadow-sm">
             <i class="bi bi-plus-lg me-1"></i> Нова анкета
@@ -17,11 +17,11 @@
         <div class="card-body py-3">
             <form method="get" action="{{ route('questionnaires.index') }}" class="row g-2 align-items-end">
                 <div class="col-md-5">
-                    <label for="q" class="form-label small text-secondary mb-1">Търсене</label>
+                    <label for="q" class="form-label small text-body-secondary mb-1">Търсене</label>
                     <input type="search" name="q" id="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Заглавие или ключови думи…">
                 </div>
                 <div class="col-md-4">
-                    <label for="status" class="form-label small text-secondary mb-1">Статус</label>
+                    <label for="status" class="form-label small text-body-secondary mb-1">Статус</label>
                     <select name="status" id="status" class="form-select form-select-sm">
                         <option value="">Всички</option>
                         <option value="draft" @selected(request('status') === 'draft')>Чернова</option>
@@ -43,11 +43,11 @@
     @if ($questionnaires->isEmpty())
         <div class="card text-center py-5 px-4">
             <div class="card-body">
-                <i class="bi bi-inbox display-4 text-secondary opacity-50"></i>
+                <i class="bi bi-inbox display-4 text-body-secondary opacity-50"></i>
                 @if (request()->filled('q') || request()->filled('status'))
-                    <p class="text-secondary mt-3 mb-4">Няма анкети, които да отговарят на филтрите. Опитайте с други критерии или <a href="{{ route('questionnaires.index') }}">изчистете филтрите</a>.</p>
+                    <p class="text-body-secondary mt-3 mb-4">Няма анкети, които да отговарят на филтрите. Опитайте с други критерии или <a href="{{ route('questionnaires.index') }}">изчистете филтрите</a>.</p>
                 @else
-                    <p class="text-secondary mt-3 mb-4">Все още няма анкети.</p>
+                    <p class="text-body-secondary mt-3 mb-4">Все още няма анкети.</p>
                 @endif
                 <a href="{{ route('questionnaires.create') }}" class="btn btn-primary">Нова анкета</a>
             </div>
@@ -62,10 +62,10 @@
                     <div class="list-group-item py-4">
                         <div class="row align-items-center g-3">
                             <div class="col-md">
-                                <h2 class="h6 fw-semibold mb-1 text-dark">{{ $q->chosen_title ?? $q->user_title }}</h2>
-                                <div class="d-flex flex-wrap align-items-center gap-2 small text-secondary">
+                                <h2 class="h6 fw-semibold mb-1 text-body-emphasis">{{ $q->chosen_title ?? $q->user_title }}</h2>
+                                <div class="d-flex flex-wrap align-items-center gap-2 small text-body-secondary">
                                     <span>От:</span>
-                                    <span class="text-dark">{{ $q->user?->name ?? '—' }}</span>
+                                    <span class="text-body">{{ $q->user?->name ?? '—' }}</span>
                                     <span class="text-muted">·</span>
                                     <span>Статус:</span>
                                     @if ($q->status === 'completed')

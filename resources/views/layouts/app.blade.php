@@ -101,6 +101,8 @@
             --bs-body-color-rgb: 226, 232, 240;
             --bs-emphasis-color: #f8fafc;
             --bs-emphasis-color-rgb: 248, 250, 252;
+            /* Reboot задава color: var(--bs-heading-color) на h1–h6 — без това заглавията остават тъмни */
+            --bs-heading-color: #f8fafc;
             --bs-secondary-color: #cbd5e1;
             --bs-secondary-color-rgb: 203, 213, 225;
             --bs-tertiary-color: #94a3b8;
@@ -196,6 +198,29 @@
         }
         [data-bs-theme="dark"] footer a.link-secondary:hover {
             color: var(--bs-link-hover-color) !important;
+        }
+        /* Заглавия от Reboot + .h1–.h6 без utility клас */
+        [data-bs-theme="dark"] h1,
+        [data-bs-theme="dark"] h2,
+        [data-bs-theme="dark"] h3,
+        [data-bs-theme="dark"] h4,
+        [data-bs-theme="dark"] h5,
+        [data-bs-theme="dark"] h6,
+        [data-bs-theme="dark"] .h1,
+        [data-bs-theme="dark"] .h2,
+        [data-bs-theme="dark"] .h3,
+        [data-bs-theme="dark"] .h4,
+        [data-bs-theme="dark"] .h5,
+        [data-bs-theme="dark"] .h6 {
+            color: var(--bs-heading-color) !important;
+        }
+        [data-bs-theme="dark"] .page-header p,
+        [data-bs-theme="dark"] .form-label {
+            color: var(--bs-secondary-color) !important;
+        }
+        [data-bs-theme="dark"] .list-group-item,
+        [data-bs-theme="dark"] .list-group-item p {
+            color: var(--bs-body-color);
         }
         .navbar-brand { font-weight: 600; letter-spacing: -0.02em; }
         .page-header {
