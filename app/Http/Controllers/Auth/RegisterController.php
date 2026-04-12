@@ -9,9 +9,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class RegisterController extends Controller
 {
@@ -38,9 +40,17 @@ class RegisterController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        event(new Registered($user));
-
         Auth::login($user);
+
+        try {
+            event(new Registered($user));
+        } catch (TransportException $e) {
+            Log::error('Registration verification email SMTP failed', ['exception' => $e]);
+
+            return redirect()->route('verification.notice')->withErrors([
+                'email' => 'Акаунтът е създаден, но не изпратихме имейл за потвърждение поради проблем с SMTP (често блокиран порт от хостинга). Използвайте „Изпрати отново“ по-долу след като оправите MAIL_* или се свържете с хостинга.',
+            ]);
+        }
 
         return redirect()->route('verification.notice');
     }

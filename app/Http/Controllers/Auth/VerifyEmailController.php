@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class VerifyEmailController extends Controller
 {
@@ -30,7 +32,15 @@ class VerifyEmailController extends Controller
             return redirect()->route('questionnaires.index');
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        try {
+            $request->user()->sendEmailVerificationNotification();
+        } catch (TransportException $e) {
+            Log::error('Email verification SMTP failed', ['exception' => $e]);
+
+            return back()->withErrors([
+                'email' => 'Неуспешна връзка с пощенския сървър (SMTP). На много хостинги изходящите портове 587/465 са блокирани или пощата приема само от определени IP. Проверете с доставчика на хостинг или опитайте друг порт/доставчик на поща.',
+            ]);
+        }
 
         return back()->with('status', 'Изпратихме нов линк за потвърждение.');
     }
