@@ -4,7 +4,10 @@ namespace App\Services;
 
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 class OpenAiService
 {
@@ -215,32 +218,48 @@ TXT;
 
         $model = (string) config('services.openai.model');
 
-        $response = $this->openAiHttp()
-            ->post('https://api.openai.com/v1/chat/completions', [
-                'model' => $model,
-                'messages' => [
-                    ['role' => 'system', 'content' => $system],
-                    ['role' => 'user', 'content' => $userMessage],
-                ],
-                'response_format' => ['type' => 'json_object'],
-                'temperature' => $temperature,
+        try {
+            $response = $this->openAiHttp()
+                ->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => $model,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $system],
+                        ['role' => 'user', 'content' => $userMessage],
+                    ],
+                    'response_format' => ['type' => 'json_object'],
+                    'temperature' => $temperature,
+                ]);
+
+            if (! $response->successful()) {
+                Log::warning('OpenAI API HTTP грешка', [
+                    'status' => $response->status(),
+                    'body_preview' => Str::limit($response->body(), 800),
+                ]);
+                throw new RuntimeException('OpenAI API грешка (код '.$response->status().'). Опитайте по-късно.');
+            }
+
+            $content = $response->json('choices.0.message.content');
+            if (! is_string($content) || $content === '') {
+                Log::warning('OpenAI празен content в отговор');
+                throw new RuntimeException('Празен отговор от AI.');
+            }
+
+            $decoded = json_decode($content, true);
+            if (! is_array($decoded)) {
+                Log::warning('OpenAI невалиден JSON text', ['preview' => Str::limit($content, 400)]);
+                throw new RuntimeException('AI не върна валиден JSON.');
+            }
+
+            return $decoded;
+        } catch (RuntimeException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            Log::error('OpenAI мрежова или неочаквана грешка', [
+                'message' => $e->getMessage(),
+                'class' => $e::class,
             ]);
-
-        if (! $response->successful()) {
-            throw new RuntimeException('OpenAI API грешка: '.$response->body());
+            throw new RuntimeException('Проблем с връзката към AI. Проверете мрежата и опитайте отново.');
         }
-
-        $content = $response->json('choices.0.message.content');
-        if (! is_string($content) || $content === '') {
-            throw new RuntimeException('Празен отговор от AI.');
-        }
-
-        $decoded = json_decode($content, true);
-        if (! is_array($decoded)) {
-            throw new RuntimeException('AI не върна валиден JSON.');
-        }
-
-        return $decoded;
     }
 
     private function openAiHttp(): PendingRequest

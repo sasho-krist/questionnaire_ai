@@ -13,12 +13,43 @@
         </a>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-body py-3">
+            <form method="get" action="{{ route('questionnaires.index') }}" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label for="q" class="form-label small text-secondary mb-1">Търсене</label>
+                    <input type="search" name="q" id="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Заглавие или ключови думи…">
+                </div>
+                <div class="col-md-4">
+                    <label for="status" class="form-label small text-secondary mb-1">Статус</label>
+                    <select name="status" id="status" class="form-select form-select-sm">
+                        <option value="">Всички</option>
+                        <option value="draft" @selected(request('status') === 'draft')>Чернова</option>
+                        <option value="titles_ready" @selected(request('status') === 'titles_ready')>Избор на заглавие</option>
+                        <option value="building" @selected(request('status') === 'building')>В изграждане</option>
+                        <option value="completed" @selected(request('status') === 'completed')>Завършена</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="bi bi-search me-1"></i> Филтрирай
+                    </button>
+                    <a href="{{ route('questionnaires.index') }}" class="btn btn-outline-secondary btn-sm">Изчисти</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @if ($questionnaires->isEmpty())
         <div class="card text-center py-5 px-4">
             <div class="card-body">
                 <i class="bi bi-inbox display-4 text-secondary opacity-50"></i>
-                <p class="text-secondary mt-3 mb-4">Все още няма анкети.</p>
-                <a href="{{ route('questionnaires.create') }}" class="btn btn-primary">Създайте първата</a>
+                @if (request()->filled('q') || request()->filled('status'))
+                    <p class="text-secondary mt-3 mb-4">Няма анкети, които да отговарят на филтрите. Опитайте с други критерии или <a href="{{ route('questionnaires.index') }}">изчистете филтрите</a>.</p>
+                @else
+                    <p class="text-secondary mt-3 mb-4">Все още няма анкети.</p>
+                @endif
+                <a href="{{ route('questionnaires.create') }}" class="btn btn-primary">Нова анкета</a>
             </div>
         </div>
     @else
@@ -72,6 +103,12 @@
                                         </a>
                                     @endif
                                     @if ($isOwner)
+                                        <form method="post" action="{{ route('questionnaires.duplicate', $q) }}" class="d-inline" onsubmit="return confirm('Да създадете ли копие на тази анкета?');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-files me-1"></i> Копие
+                                            </button>
+                                        </form>
                                         <form method="post" action="{{ route('questionnaires.destroy', $q) }}" class="d-inline" onsubmit="return confirm('Да изтриете ли тази анкета? Това действие е необратимо.');">
                                             @csrf
                                             @method('DELETE')

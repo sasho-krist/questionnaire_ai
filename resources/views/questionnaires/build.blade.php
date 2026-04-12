@@ -16,6 +16,53 @@
         </p>
     </div>
 
+    @if ($questionnaire->status === 'completed')
+        @php
+            $shareUrl = route('questionnaires.play.start', $questionnaire);
+            $qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='.rawurlencode($shareUrl);
+        @endphp
+        <div class="card mb-4 border-success border-2">
+            <div class="card-header bg-success-subtle fw-semibold text-success-emphasis">
+                <i class="bi bi-share me-2"></i>Споделяне и QR код
+            </div>
+            <div class="card-body">
+                <p class="small text-secondary mb-3">Изпратете линка на участниците или покажете QR кода на екран/печат.</p>
+                <div class="row g-3 align-items-center">
+                    <div class="col-md">
+                        <label for="share-url" class="form-label small mb-1">Публичен линк за стартиране</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace small" id="share-url" readonly value="{{ $shareUrl }}">
+                            <button type="button" class="btn btn-outline-primary" id="share-copy-btn" data-copy-target="share-url" title="Копирай">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-auto text-center">
+                        <img src="{{ $qrSrc }}" width="180" height="180" class="img-fluid border rounded bg-white p-1" alt="QR код към анкетата" loading="lazy">
+                        <div class="small text-muted mt-1">Сканирай за отваряне</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @push('scripts')
+            <script>
+                document.getElementById('share-copy-btn')?.addEventListener('click', function () {
+                    var el = document.getElementById('share-url');
+                    if (!el) return;
+                    el.select();
+                    el.setSelectionRange(0, 99999);
+                    navigator.clipboard.writeText(el.value).then(function () {
+                        var btn = document.getElementById('share-copy-btn');
+                        if (btn) { btn.classList.remove('btn-outline-primary'); btn.classList.add('btn-success'); }
+                        setTimeout(function () {
+                            if (btn) { btn.classList.add('btn-outline-primary'); btn.classList.remove('btn-success'); }
+                        }, 1200);
+                    });
+                });
+            </script>
+        @endpush
+    @endif
+
     @if (in_array($questionnaire->status, ['building', 'completed'], true))
         <div class="card mb-4">
             <div class="card-header bg-light fw-semibold">

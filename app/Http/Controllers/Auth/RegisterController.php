@@ -42,6 +42,6 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('questionnaires.index');
+        return redirect()->route('verification.notice');
     }
 }

@@ -15,6 +15,10 @@
             </div>
 
             <div class="card p-4">
+                @if (session('status'))
+                    <div class="alert alert-success mb-3">{{ session('status') }}</div>
+                @endif
+
                 <form method="post" action="{{ route('login') }}" class="vstack gap-3">
                     @csrf
 
@@ -43,6 +47,9 @@
                         @error('password')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
+                        <div class="text-end mt-1">
+                            <a href="{{ route('password.request') }}" class="small">Забравена парола?</a>
+                        </div>
                     </div>
 
                     <div class="form-check">

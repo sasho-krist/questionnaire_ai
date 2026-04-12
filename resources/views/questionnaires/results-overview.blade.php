@@ -3,9 +3,14 @@
 @section('title', 'Резултати — '.($questionnaire->chosen_title ?? $questionnaire->user_title))
 
 @section('content')
-    <div class="page-header">
-        <h1 class="h3 mb-1">Резултати по участници</h1>
-        <p class="text-secondary mb-0">{{ $questionnaire->chosen_title ?? $questionnaire->user_title }}</p>
+    <div class="page-header d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-3">
+        <div>
+            <h1 class="h3 mb-1">Резултати по участници</h1>
+            <p class="text-secondary mb-0">{{ $questionnaire->chosen_title ?? $questionnaire->user_title }}</p>
+        </div>
+        <a href="{{ route('questionnaires.export-results', $questionnaire) }}" class="btn btn-outline-success btn-sm align-self-md-start">
+            <i class="bi bi-download me-1"></i> Експорт CSV
+        </a>
     </div>
 
     <p class="small text-muted mb-4">

@@ -92,7 +92,7 @@
 <body class="bg-light d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #7c3aed 100%);">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ auth()->check() ? route('questionnaires.index') : route('login') }}">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}">
                 <i class="bi bi-ui-checks-grid"></i>
                 <span>Questionnaire AI</span>
             </a>
@@ -113,6 +113,16 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('faq') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('faq') }}">
+                                <i class="bi bi-question-circle me-1"></i> ЧЗВ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('terms') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('terms') }}">
+                                <i class="bi bi-file-text me-1"></i> Условия
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('privacy') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('privacy') }}">
                                 <i class="bi bi-shield-check me-1"></i> Поверителност
                             </a>
@@ -129,6 +139,21 @@
                             </form>
                         </li>
                     @else
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('home') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('home') }}">
+                                <i class="bi bi-house me-1"></i> Начало
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('faq') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('faq') }}">
+                                <i class="bi bi-question-circle me-1"></i> ЧЗВ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('terms') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('terms') }}">
+                                <i class="bi bi-file-text me-1"></i> Условия
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('privacy') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('privacy') }}">
                                 <i class="bi bi-shield-check me-1"></i> Поверителност
@@ -183,7 +208,11 @@
         <div class="container text-center text-muted small">
             <div>{{ config('app.name') }} · AI-генерирани анкети</div>
             <div class="mt-2">
-                <a href="{{ route('privacy') }}" class="link-secondary text-decoration-none">Политика за поверителност</a>
+                <a href="{{ route('terms') }}" class="link-secondary text-decoration-none">Общи условия</a>
+                <span class="text-muted mx-2">·</span>
+                <a href="{{ route('faq') }}" class="link-secondary text-decoration-none">ЧЗВ</a>
+                <span class="text-muted mx-2">·</span>
+                <a href="{{ route('privacy') }}" class="link-secondary text-decoration-none">Поверителност</a>
                 <span class="text-muted mx-2">·</span>
                 <a href="{{ url('/sitemap.xml') }}" class="link-secondary text-decoration-none">Sitemap</a>
             </div>
@@ -198,6 +227,8 @@
             </div>
         </div>
     </footer>
+
+    @include('components.cookie-banner')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     @stack('scripts')

@@ -10,9 +10,11 @@ use App\Services\OpenAiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class QuestionnaireController extends Controller
 {
@@ -20,14 +22,110 @@ class QuestionnaireController extends Controller
         private readonly OpenAiService $openAi
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $questionnaires = Questionnaire::query()
-            ->with('user')
-            ->latest()
-            ->paginate(15);
+        $query = Questionnaire::query()->with('user');
+
+        $search = trim((string) $request->input('q', ''));
+        if ($search !== '') {
+            $like = '%'.$search.'%';
+            $query->where(function ($sub) use ($like): void {
+                $sub->where('user_title', 'like', $like)
+                    ->orWhere('chosen_title', 'like', $like)
+                    ->orWhere('topic_keywords', 'like', $like);
+            });
+        }
+
+        $status = $request->string('status')->toString();
+        if ($status !== '' && in_array($status, ['draft', 'titles_ready', 'building', 'completed'], true)) {
+            $query->where('status', $status);
+        }
+
+        $questionnaires = $query->latest()->paginate(15)->withQueryString();
 
         return view('questionnaires.index', compact('questionnaires'));
+    }
+
+    public function duplicate(Questionnaire $questionnaire): RedirectResponse
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
+        $questionnaire->load(['sections.questions']);
+
+        $new = DB::transaction(function () use ($questionnaire): Questionnaire {
+            $copy = $questionnaire->replicate([
+                'id',
+                'uuid',
+                'user_id',
+                'created_at',
+                'updated_at',
+            ]);
+            $copy->uuid = (string) Str::uuid();
+            $copy->user_id = auth()->id();
+            $copy->user_title = 'Копие — '.Str::limit($questionnaire->chosen_title ?? $questionnaire->user_title, 240);
+            $copy->status = $questionnaire->sections->isEmpty()
+                ? $questionnaire->status
+                : 'building';
+            $copy->save();
+
+            foreach ($questionnaire->sections as $section) {
+                $newSection = $copy->sections()->create([
+                    'sort_order' => $section->sort_order,
+                    'title' => $section->title,
+                ]);
+                foreach ($section->questions as $question) {
+                    $newSection->questions()->create([
+                        'sort_order' => $question->sort_order,
+                        'body' => $question->body,
+                        'choice_options' => $question->choice_options,
+                        'correct_option' => $question->correct_option,
+                    ]);
+                }
+            }
+
+            return $copy->refresh();
+        });
+
+        return redirect()
+            ->route($new->status === 'titles_ready' ? 'questionnaires.titles' : 'questionnaires.build', $new)
+            ->with('status', 'Създадено е копие на анкетата.');
+    }
+
+    public function exportResults(Questionnaire $questionnaire): StreamedResponse|RedirectResponse
+    {
+        if ($questionnaire->status !== 'completed') {
+            return redirect()
+                ->route('questionnaires.index')
+                ->withErrors(['export' => 'Експорт е възможен само за завършени анкети.']);
+        }
+
+        $attempts = QuestionnaireAttempt::query()
+            ->where('questionnaire_id', $questionnaire->id)
+            ->whereNotNull('completed_at')
+            ->with('user')
+            ->orderByDesc('completed_at')
+            ->get();
+
+        $title = Str::slug($questionnaire->chosen_title ?? $questionnaire->user_title, '-') ?: 'anketa';
+        $filename = 'rezultati-'.$title.'-'.now()->format('Y-m-d-His').'.csv';
+
+        return response()->streamDownload(function () use ($attempts): void {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Участник', 'Имейл', 'Точки', 'Макс', 'Завършен_UTC'], ';');
+            foreach ($attempts as $a) {
+                fputcsv($out, [
+                    $a->user?->name ?? 'Анонимен',
+                    $a->user?->email ?? '',
+                    $a->score !== null ? (string) $a->score : '',
+                    $a->max_score !== null ? (string) $a->max_score : '',
+                    $a->completed_at?->toIso8601String() ?? '',
+                ], ';');
+            }
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     /**

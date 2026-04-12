@@ -28,7 +28,7 @@ return [
     | Open Graph / Twitter default image (absolute URL recommended)
     |--------------------------------------------------------------------------
     */
-    'og_image' => env('SEO_OG_IMAGE'),
+    'og_image' => env('SEO_OG_IMAGE', '/images/1.png'),
 
     /*
     |--------------------------------------------------------------------------

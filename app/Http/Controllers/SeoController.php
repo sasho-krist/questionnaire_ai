@@ -26,9 +26,13 @@ class SeoController extends Controller
     public function sitemap(): Response
     {
         $entries = [
+            ['loc' => url('/'), 'priority' => '1.0'],
+            ['loc' => url('/faq'), 'priority' => '0.85'],
+            ['loc' => url('/terms'), 'priority' => '0.85'],
             ['loc' => url('/privacy'), 'priority' => '0.9'],
             ['loc' => url('/login'), 'priority' => '0.5'],
             ['loc' => url('/register'), 'priority' => '0.5'],
+            ['loc' => url('/forgot-password'), 'priority' => '0.3'],
         ];
 
         $lastmod = now()->toAtomString();
