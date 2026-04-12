@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\ResendInstallChecker;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,6 +51,16 @@ class RegisterController extends Controller
             return redirect()->route('verification.notice')->withErrors([
                 'email' => 'Акаунтът е създаден, но не изпратихме имейл за потвърждение (SMTP недостъпен). Настройте MAIL_MAILER=resend и RESEND_API_KEY, после натиснете „Изпрати отново“.',
             ]);
+        } catch (\Throwable $e) {
+            if (ResendInstallChecker::isMissingSdkError($e)) {
+                Log::error('Resend SDK missing on server', ['exception' => $e]);
+
+                return redirect()->route('verification.notice')->withErrors([
+                    'email' => 'Липсва resend/resend-php. На сървъра изпълнете composer install --no-dev -o, после „Изпрати отново“.',
+                ]);
+            }
+
+            throw $e;
         }
 
         return redirect()->route('verification.notice');

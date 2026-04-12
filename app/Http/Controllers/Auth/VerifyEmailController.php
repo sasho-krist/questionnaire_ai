@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\ResendInstallChecker;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,6 +41,16 @@ class VerifyEmailController extends Controller
             return back()->withErrors([
                 'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Често хостингът блокира портове 587/465. Решение: ползвайте изпращане по HTTPS — в .env задайте MAIL_MAILER=resend, RESEND_API_KEY от resend.com и верифициран MAIL_FROM_ADDRESS (вижте .env.example).',
             ]);
+        } catch (\Throwable $e) {
+            if (ResendInstallChecker::isMissingSdkError($e)) {
+                Log::error('Resend SDK missing on server', ['exception' => $e]);
+
+                return back()->withErrors([
+                    'email' => 'Липсва PHP пакетът resend/resend-php (клас Resend). На сървъра в папката на проекта изпълнете: composer install --no-dev -o, после php artisan config:clear.',
+                ]);
+            }
+
+            throw $e;
         }
 
         return back()->with('status', 'Изпратихме нов линк за потвърждение.');

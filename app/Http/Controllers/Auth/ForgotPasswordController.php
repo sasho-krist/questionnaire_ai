@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\ResendInstallChecker;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,16 @@ class ForgotPasswordController extends Controller
             return back()->withInput($request->only('email'))->withErrors([
                 'email' => 'Неуспешна връзка с пощенския сървър (SMTP). Ако портовете са блокирани, превключете на Resend: MAIL_MAILER=resend и RESEND_API_KEY в .env.',
             ]);
+        } catch (\Throwable $e) {
+            if (ResendInstallChecker::isMissingSdkError($e)) {
+                Log::error('Resend SDK missing on server', ['exception' => $e]);
+
+                return back()->withInput($request->only('email'))->withErrors([
+                    'email' => 'Липсва resend/resend-php. На сървъра: composer install --no-dev -o и php artisan config:clear.',
+                ]);
+            }
+
+            throw $e;
         }
 
         if ($status === Password::RESET_LINK_SENT) {
