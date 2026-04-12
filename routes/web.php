@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/questionnaires', [QuestionnaireController::class, 'store'])->name('questionnaires.store');
     Route::delete('/questionnaires/{questionnaire}', [QuestionnaireController::class, 'destroy'])->name('questionnaires.destroy');
 
+    Route::get('/questionnaires/{questionnaire}/results', [QuestionnaireController::class, 'results'])->name('questionnaires.results');
+
     Route::get('/questionnaires/{questionnaire}/titles', [QuestionnaireController::class, 'titles'])->name('questionnaires.titles');
     Route::post('/questionnaires/{questionnaire}/titles', [QuestionnaireController::class, 'selectTitle'])->name('questionnaires.select-title');
 

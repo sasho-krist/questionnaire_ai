@@ -33,6 +33,7 @@ class QuestionnairePlayController extends Controller
 
         $attempt = QuestionnaireAttempt::query()->create([
             'questionnaire_id' => $questionnaire->id,
+            'user_id' => auth()->id(),
             'answers' => [],
             'started_at' => now(),
             'deadline_at' => $deadline,

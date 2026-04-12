@@ -11,6 +11,7 @@ class QuestionnaireAttempt extends Model
     protected $fillable = [
         'uuid',
         'questionnaire_id',
+        'user_id',
         'answers',
         'started_at',
         'deadline_at',
@@ -48,6 +49,11 @@ class QuestionnaireAttempt extends Model
     public function questionnaire(): BelongsTo
     {
         return $this->belongsTo(Questionnaire::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function isDeadlinePassed(): bool

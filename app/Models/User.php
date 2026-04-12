@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Questionnaire::class);
     }
+
+    public function questionnaireAttempts(): HasMany
+    {
+        return $this->hasMany(QuestionnaireAttempt::class);
+    }
 }

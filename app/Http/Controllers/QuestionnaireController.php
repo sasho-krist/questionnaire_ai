@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Questionnaire;
+use App\Models\QuestionnaireAttempt;
 use App\Models\QuestionnaireQuestion;
 use App\Models\QuestionnaireSection;
 use App\Services\OpenAiService;
@@ -39,6 +40,30 @@ class QuestionnaireController extends Controller
             403,
             'Можете да променяте само анкети, които сте създали.'
         );
+    }
+
+    /**
+     * Обобщени резултати от всички завършили опити — само за създателя на анкетата.
+     */
+    public function results(Questionnaire $questionnaire): View|RedirectResponse
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
+        if ($questionnaire->status !== 'completed') {
+            return redirect()
+                ->route('questionnaires.build', $questionnaire)
+                ->withErrors(['results' => 'Резултатите по участници са налични, когато анкетата е маркирана като завършена.']);
+        }
+
+        $attempts = QuestionnaireAttempt::query()
+            ->where('questionnaire_id', $questionnaire->id)
+            ->whereNotNull('completed_at')
+            ->with('user')
+            ->orderByDesc('score')
+            ->orderByDesc('completed_at')
+            ->get();
+
+        return view('questionnaires.results', compact('questionnaire', 'attempts'));
     }
 
     public function create(): View
