@@ -25,10 +25,19 @@
 
                     <div>
                         <label for="password" class="form-label">Парола</label>
-                        <input type="password" name="password" id="password"
-                               class="form-control @error('password') is-invalid @enderror" required autocomplete="current-password">
+                        <div class="position-relative">
+                            <input type="password" name="password" id="password"
+                                   class="form-control pe-5 @error('password') is-invalid @enderror" required autocomplete="current-password">
+                            <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y py-1 px-2 me-1 text-secondary border-0 shadow-none js-password-toggle z-1"
+                                    data-password-target="password"
+                                    aria-label="Покажи паролата"
+                                    aria-pressed="false"
+                                    title="Покажи паролата">
+                                <i class="bi bi-eye fs-5" aria-hidden="true"></i>
+                            </button>
+                        </div>
                         @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -51,4 +60,6 @@
             </div>
         </div>
     </div>
+
+    @include('auth.partials.password-reveal-script')
 @endsection

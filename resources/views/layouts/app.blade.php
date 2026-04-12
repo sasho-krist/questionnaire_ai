@@ -111,7 +111,16 @@
 
     <footer class="border-top bg-white py-3 mt-auto">
         <div class="container text-center text-muted small">
-            {{ config('app.name') }} · AI-генерирани анкети
+            <div>{{ config('app.name') }} · AI-генерирани анкети</div>
+            <div class="mt-2">
+                Created by:
+                <a href="https://sasho-dev.com/" class="link-secondary text-decoration-none" target="_blank" rel="noopener noreferrer">sasho-dev</a>
+                <span class="text-muted mx-1">|</span>
+                email:
+                <a href="mailto:alexander.krist@gmail.com" class="link-secondary text-decoration-none">alexander.krist@gmail.com</a>
+                <span class="text-muted mx-1">|</span>
+                All rights reserved.
+            </div>
         </div>
     </footer>
 
