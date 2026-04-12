@@ -98,11 +98,104 @@
         [data-bs-theme="dark"] {
             --bs-body-bg: #0f172a;
             --bs-body-color: #e2e8f0;
+            --bs-body-color-rgb: 226, 232, 240;
+            --bs-emphasis-color: #f8fafc;
+            --bs-emphasis-color-rgb: 248, 250, 252;
             --bs-secondary-color: #cbd5e1;
             --bs-secondary-color-rgb: 203, 213, 225;
             --bs-tertiary-color: #94a3b8;
+            --bs-tertiary-color-rgb: 148, 163, 184;
             --bs-border-color: #334155;
             --bs-card-bg: #1e293b;
+            --bs-link-color: #a5b4fc;
+            --bs-link-hover-color: #c4b5fd;
+        }
+        /* Bootstrap .text-dark / .text-secondary ползват фиксирани RGB — в тъмна тема стават невидими */
+        [data-bs-theme="dark"] .text-dark {
+            color: var(--bs-emphasis-color) !important;
+        }
+        [data-bs-theme="dark"] .badge.text-dark,
+        [data-bs-theme="dark"] .text-bg-warning.text-dark,
+        [data-bs-theme="dark"] .text-bg-info.text-dark {
+            color: #1e293b !important;
+        }
+        [data-bs-theme="dark"] .text-secondary {
+            color: var(--bs-secondary-color) !important;
+        }
+        [data-bs-theme="dark"] .text-muted {
+            color: var(--bs-tertiary-color) !important;
+        }
+        [data-bs-theme="dark"] .list-group-item {
+            background-color: var(--bs-card-bg);
+            color: var(--bs-body-color);
+            border-color: var(--bs-border-color);
+        }
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background-color: #1e293b;
+            border-color: var(--bs-border-color);
+            color: var(--bs-body-color);
+        }
+        [data-bs-theme="dark"] .form-control::placeholder {
+            color: #94a3b8;
+            opacity: 1;
+        }
+        [data-bs-theme="dark"] .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        }
+        [data-bs-theme="dark"] .btn-outline-secondary {
+            color: #cbd5e1 !important;
+            border-color: #64748b !important;
+        }
+        [data-bs-theme="dark"] .btn-outline-secondary:hover {
+            background-color: #475569 !important;
+            border-color: #64748b !important;
+            color: #fff !important;
+        }
+        [data-bs-theme="dark"] .btn-outline-dark {
+            color: #e2e8f0 !important;
+            border-color: #64748b !important;
+        }
+        [data-bs-theme="dark"] .btn-outline-dark:hover {
+            background-color: #334155 !important;
+            border-color: #94a3b8 !important;
+            color: #fff !important;
+        }
+        [data-bs-theme="dark"] .table {
+            --bs-table-color: var(--bs-body-color);
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--bs-border-color);
+        }
+        [data-bs-theme="dark"] .accordion-button:not(.collapsed) {
+            color: var(--bs-emphasis-color);
+            background-color: rgba(79, 70, 229, 0.15);
+        }
+        [data-bs-theme="dark"] .accordion-button {
+            color: var(--bs-body-color);
+            background-color: var(--bs-card-bg);
+        }
+        [data-bs-theme="dark"] .page-link {
+            background-color: var(--bs-card-bg);
+            border-color: var(--bs-border-color);
+            color: var(--bs-link-color);
+        }
+        [data-bs-theme="dark"] .bg-light {
+            background-color: #334155 !important;
+            color: var(--bs-body-color);
+        }
+        [data-bs-theme="dark"] .bg-white {
+            background-color: var(--bs-card-bg) !important;
+        }
+        [data-bs-theme="dark"] .table-light {
+            --bs-table-bg: #334155;
+            --bs-table-color: var(--bs-body-color);
+        }
+        [data-bs-theme="dark"] footer .text-muted,
+        [data-bs-theme="dark"] footer .link-secondary {
+            color: #94a3b8 !important;
+        }
+        [data-bs-theme="dark"] footer a.link-secondary:hover {
+            color: var(--bs-link-hover-color) !important;
         }
         .navbar-brand { font-weight: 600; letter-spacing: -0.02em; }
         .page-header {
