@@ -43,15 +43,13 @@ class QuestionnaireController extends Controller
     }
 
     /**
-     * Обобщени резултати от всички завършили опити — само за създателя на анкетата.
+     * Обобщени резултати от всички завършили опити — достъпно за всеки логнат потребител.
      */
     public function results(Questionnaire $questionnaire): View|RedirectResponse
     {
-        $this->authorizeOwnedQuestionnaire($questionnaire);
-
         if ($questionnaire->status !== 'completed') {
             return redirect()
-                ->route('questionnaires.build', $questionnaire)
+                ->route('questionnaires.index')
                 ->withErrors(['results' => 'Резултатите по участници са налични, когато анкетата е маркирана като завършена.']);
         }
 

@@ -61,7 +61,7 @@
                                             <i class="bi bi-sliders me-1"></i> Конструктор
                                         </a>
                                     @endif
-                                    @if ($isOwner && $q->status === 'completed')
+                                    @if ($q->status === 'completed')
                                         <a href="{{ route('questionnaires.results', $q) }}" class="btn btn-outline-dark btn-sm">
                                             <i class="bi bi-clipboard-data me-1"></i> Резултати
                                         </a>
