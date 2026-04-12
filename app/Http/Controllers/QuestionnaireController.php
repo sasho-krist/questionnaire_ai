@@ -63,7 +63,7 @@ class QuestionnaireController extends Controller
             ->orderByDesc('completed_at')
             ->get();
 
-        return view('questionnaires.results', compact('questionnaire', 'attempts'));
+        return view('questionnaires.results-overview', compact('questionnaire', 'attempts'));
     }
 
     public function create(): View

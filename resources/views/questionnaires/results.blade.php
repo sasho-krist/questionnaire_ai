@@ -1,76 +1,106 @@
 @extends('layouts.app')
 
-@section('title', 'Резултати — '.($questionnaire->chosen_title ?? $questionnaire->user_title))
+@section('title', 'Резултат')
 
 @section('content')
+    @php
+        $answers = $attempt->answers ?? [];
+    @endphp
+
     <div class="page-header">
-        <h1 class="h3 mb-1">Резултати по участници</h1>
-        <p class="text-secondary mb-0">{{ $questionnaire->chosen_title ?? $questionnaire->user_title }}</p>
+        <h1 class="h2 fw-bold text-dark mb-1">Резултат: {{ $questionnaire->chosen_title }}</h1>
+        <p class="text-secondary mb-0">Преглед на отговорите и резултата от този опит.</p>
     </div>
 
-    <p class="small text-muted mb-4">
-        Показват се всички завършили опити. Новите опити записват кой потребител ги е направил; стари опити без акаунт се отбелязват като „Анонимен“.
-    </p>
-
-    @if ($attempts->isEmpty())
-        <div class="card text-center py-5 px-4">
-            <div class="card-body">
-                <i class="bi bi-clipboard-data display-4 text-secondary opacity-50"></i>
-                <p class="text-secondary mt-3 mb-0">Все още няма завършени опити за тази анкета.</p>
+    <div class="card border-primary border-2 mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <h2 class="h4 mb-2">
+                        <i class="bi bi-trophy me-2 text-warning"></i>
+                        Точки: <strong>{{ $attempt->score !== null ? $attempt->score : '—' }}</strong>
+                        @if ($attempt->max_score !== null && (float) $attempt->max_score > 0)
+                            <span class="text-secondary">/ {{ $attempt->max_score }}</span>
+                        @elseif ($attempt->max_score !== null && (float) $attempt->max_score <= 0)
+                            <span class="text-secondary small">(няма въпроси със зададен верен отговор за точкуване)</span>
+                        @endif
+                    </h2>
+                    <p class="text-secondary small mb-0">
+                        За верен отговор: <strong>{{ $questionnaire->points_per_correct }}</strong> т.
+                        @if ($questionnaire->seconds_per_question)
+                            · Лимит на въпрос: <strong>{{ $questionnaire->seconds_per_question }}</strong> сек.
+                        @else
+                            · Без времеви лимит
+                        @endif
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="badge text-bg-secondary">Завършен {{ $attempt->completed_at?->format('d.m.Y H:i') }}</span>
+                </div>
             </div>
         </div>
-    @else
-        <div class="card overflow-hidden">
-            <div class="table-responsive mb-0">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col" class="ps-4">#</th>
-                            <th scope="col">Участник</th>
-                            <th scope="col">Резултат</th>
-                            <th scope="col">Завършено</th>
-                            <th scope="col" class="pe-4 text-end">Детайли</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($attempts as $i => $attempt)
-                            <tr>
-                                <td class="ps-4 text-muted">{{ $i + 1 }}</td>
-                                <td>
-                                    @if ($attempt->user)
-                                        <span class="fw-medium">{{ $attempt->user->name }}</span>
-                                        <span class="d-block small text-muted">{{ $attempt->user->email }}</span>
-                                    @else
-                                        <span class="text-muted">Анонимен (преди въвеждане на потребители)</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($attempt->max_score !== null && (float) $attempt->max_score > 0)
-                                        <span class="fw-semibold">{{ number_format((float) $attempt->score, 2, ',', ' ') }}</span>
-                                        <span class="text-muted">/ {{ number_format((float) $attempt->max_score, 2, ',', ' ') }}</span>
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                                <td class="small text-secondary">
-                                    {{ $attempt->completed_at?->timezone(config('app.timezone'))->format('d.m.Y H:i') ?? '—' }}
-                                </td>
-                                <td class="pe-4 text-end">
-                                    <a href="{{ route('questionnaires.play.results', $attempt) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye me-1"></i> Преглед
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    @endif
+    </div>
 
-    <div class="mt-4">
-        <a href="{{ route('questionnaires.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Към анкетите
-        </a>
+    <div class="vstack gap-4">
+        @foreach ($questionnaire->sections as $section)
+            <div class="card">
+                <div class="card-header bg-light py-3">
+                    <h2 class="h6 fw-semibold mb-0 text-primary">
+                        <i class="bi bi-folder2-open me-2"></i>{{ $section->title }}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    @foreach ($section->questions as $question)
+                        @php
+                            $userRaw = data_get($answers, (string) $question->id) ?? data_get($answers, $question->id);
+                        @endphp
+                        <div class="mb-4 @if (! $loop->last) pb-4 border-bottom @endif">
+                            <p class="fw-medium text-dark mb-2">{{ $question->body }}</p>
+
+                            @if ($question->isScoredMultipleChoice())
+                                @php
+                                    $userIdx = $userRaw !== null && $userRaw !== '' ? (int) $userRaw : null;
+                                    $correctIdx = (int) $question->correct_option;
+                                    $isCorrect = $userIdx !== null && $userIdx === $correctIdx;
+                                    $userLabel = $userIdx !== null ? ($question->choice_options[$userIdx] ?? '—') : 'няма отговор';
+                                    $correctLabel = $question->choice_options[$correctIdx] ?? '';
+                                @endphp
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    @if ($userIdx === null)
+                                        <span class="badge rounded-pill text-bg-secondary">Без отговор</span>
+                                    @elseif ($isCorrect)
+                                        <span class="badge rounded-pill text-bg-success">Верен (+{{ $questionnaire->points_per_correct }} т.)</span>
+                                    @else
+                                        <span class="badge rounded-pill text-bg-danger">Грешен</span>
+                                    @endif
+                                </div>
+                                <ul class="list-unstyled small mb-0">
+                                    <li><span class="text-secondary">Вашият избор:</span> {{ $userLabel }}</li>
+                                    @if (! $isCorrect)
+                                        <li><span class="text-secondary">Верен отговор:</span> <span class="text-success fw-medium">{{ $correctLabel }}</span></li>
+                                    @endif
+                                </ul>
+                            @elseif ($question->hasMultipleChoice())
+                                @php
+                                    $userIdx = $userRaw !== null && $userRaw !== '' ? (int) $userRaw : null;
+                                    $userLabel = $userIdx !== null ? ($question->choice_options[$userIdx] ?? '—') : 'няма отговор';
+                                @endphp
+                                <p class="small text-secondary mb-0">Вашият избор: {{ $userLabel }}</p>
+                            @else
+                                <div class="bg-light rounded p-3 small">
+                                    <span class="text-secondary">Отговор:</span>
+                                    {{ is_string($userRaw) && $userRaw !== '' ? $userRaw : '—' }}
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <div class="mt-4 d-flex flex-wrap gap-2">
+        <a href="{{ route('questionnaires.index') }}" class="btn btn-primary">Към анкетите</a>
+        <a href="{{ route('questionnaires.play.start', $questionnaire) }}" class="btn btn-outline-primary">Нов опит</a>
     </div>
 @endsection
