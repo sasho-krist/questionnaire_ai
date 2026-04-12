@@ -23,7 +23,7 @@ class QuestionnaireAttemptApiController extends Controller
             return response()->json(['message' => 'Анкетата още не е завършена за попълване.'], 409);
         }
 
-        $questionnaire->load('sections.questions');
+        $questionnaire->load(['sections.questions']);
         $questionCount = $this->scoring->countAllQuestions($questionnaire);
         $deadline = null;
         if ($questionnaire->seconds_per_question && $questionCount > 0) {
@@ -37,8 +37,6 @@ class QuestionnaireAttemptApiController extends Controller
             'started_at' => now(),
             'deadline_at' => $deadline,
         ]);
-
-        $questionnaire->load(['sections.questions']);
 
         return response()->json(
             $this->playPayload($attempt->fresh(), $questionnaire),

@@ -32,8 +32,8 @@ class AuthController extends Controller
             ]);
         }
 
-        /** @var User $user */
-        $user = User::query()->where('email', $credentials['email'])->firstOrFail();
+        $user = Auth::user();
+        abort_unless($user instanceof User, 401);
         $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([

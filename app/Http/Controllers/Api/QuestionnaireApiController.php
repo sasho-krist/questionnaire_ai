@@ -24,7 +24,7 @@ class QuestionnaireApiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Questionnaire::query()->with('user');
+        $query = Questionnaire::query();
 
         $search = trim((string) $request->input('q', ''));
         if ($search !== '') {
@@ -347,6 +347,8 @@ class QuestionnaireApiController extends Controller
 
     public function resultsOverview(Questionnaire $questionnaire): JsonResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status !== 'completed') {
             return response()->json(['message' => 'Резултатите са налични, когато анкетата е завършена.'], 409);
         }
@@ -377,6 +379,8 @@ class QuestionnaireApiController extends Controller
 
     public function exportResults(Questionnaire $questionnaire): StreamedResponse|JsonResponse
     {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
         if ($questionnaire->status !== 'completed') {
             return response()->json(['message' => 'Експорт е възможен само за завършени анкети.'], 409);
         }
