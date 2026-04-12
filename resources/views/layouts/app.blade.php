@@ -296,6 +296,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('api.docs') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('api.docs') }}">
+                                <i class="bi bi-code-slash me-1"></i> API
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('terms') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('terms') }}">
                                 <i class="bi bi-file-text me-1"></i> Условия
                             </a>
@@ -325,6 +330,11 @@
                         <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('faq') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('faq') }}">
                                 <i class="bi bi-question-circle me-1"></i> ЧЗВ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('api.docs') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('api.docs') }}">
+                                <i class="bi bi-code-slash me-1"></i> API
                             </a>
                         </li>
                         <li class="nav-item">
@@ -389,6 +399,8 @@
                 <a href="{{ route('terms') }}" class="link-secondary text-decoration-none">Общи условия</a>
                 <span class="text-muted mx-2">·</span>
                 <a href="{{ route('faq') }}" class="link-secondary text-decoration-none">ЧЗВ</a>
+                <span class="text-muted mx-2">·</span>
+                <a href="{{ route('api.docs') }}" class="link-secondary text-decoration-none">REST API</a>
                 <span class="text-muted mx-2">·</span>
                 <a href="{{ route('privacy') }}" class="link-secondary text-decoration-none">Поверителност</a>
                 <span class="text-muted mx-2">·</span>

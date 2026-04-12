@@ -48,6 +48,8 @@
     <div class="text-center small landing-footer-links">
         <a href="{{ route('faq') }}" class="link-secondary text-decoration-none">ЧЗВ</a>
         ·
+        <a href="{{ route('api.docs') }}" class="link-secondary text-decoration-none">REST API</a>
+        ·
         <a href="{{ route('terms') }}" class="link-secondary">Общи условия</a>
         ·
         <a href="{{ route('privacy') }}" class="link-secondary">Поверителност</a>

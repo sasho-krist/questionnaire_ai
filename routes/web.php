@@ -15,6 +15,7 @@ Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/api-docs', [PageController::class, 'apiDocs'])->name('api.docs');
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');

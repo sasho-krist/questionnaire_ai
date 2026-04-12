@@ -329,7 +329,7 @@ class QuestionnaireController extends Controller
             return back()->withErrors(['ai' => $e->getMessage()]);
         }
 
-        $startOrder = (int) $section->questions()->max('sort_order') + 1;
+        $startOrder = (($section->questions()->max('sort_order')) ?? -1) + 1;
         foreach ($newItems as $k => $item) {
             QuestionnaireQuestion::query()->create([
                 'section_id' => $section->id,

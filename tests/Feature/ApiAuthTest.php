@@ -12,9 +12,7 @@ class ApiAuthTest extends TestCase
 
     public function test_login_returns_bearer_token_and_user(): void
     {
-        $user = User::factory()->create([
-            'password' => 'password',
-        ]);
+        $user = User::factory()->create();
 
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
@@ -42,6 +40,11 @@ class ApiAuthTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')->getJson('/api/user');
 
         $response->assertOk()->assertJsonPath('user.email', $user->email);
+    }
+
+    public function test_api_docs_page_is_public(): void
+    {
+        $this->get(route('api.docs'))->assertOk();
     }
 
     public function test_questionnaires_index_returns_paginated_json(): void

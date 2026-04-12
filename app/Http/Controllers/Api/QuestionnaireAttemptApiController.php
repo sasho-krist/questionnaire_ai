@@ -54,7 +54,6 @@ class QuestionnaireAttemptApiController extends Controller
 
         $questionnaireAttempt->load(['questionnaire.sections.questions']);
         $q = $questionnaireAttempt->questionnaire;
-        $q->load(['sections.questions']);
 
         return response()->json($this->playPayload($questionnaireAttempt, $q));
     }

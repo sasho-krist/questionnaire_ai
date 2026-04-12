@@ -24,7 +24,8 @@ class QuestionnaireApiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Questionnaire::query();
+        $query = Questionnaire::query()
+            ->where('user_id', $request->user()->id);
 
         $search = trim((string) $request->input('q', ''));
         if ($search !== '') {
@@ -220,7 +221,7 @@ class QuestionnaireApiController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
-        $startOrder = (int) $section->questions()->max('sort_order') + 1;
+        $startOrder = (($section->questions()->max('sort_order')) ?? -1) + 1;
         foreach ($newItems as $k => $item) {
             QuestionnaireQuestion::query()->create([
                 'section_id' => $section->id,
