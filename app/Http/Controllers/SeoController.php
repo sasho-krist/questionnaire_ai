@@ -28,6 +28,7 @@ class SeoController extends Controller
         $entries = [
             ['loc' => url('/'), 'priority' => '1.0'],
             ['loc' => url('/faq'), 'priority' => '0.85'],
+            ['loc' => url('/api-docs'), 'priority' => '0.8'],
             ['loc' => url('/terms'), 'priority' => '0.85'],
             ['loc' => url('/privacy'), 'priority' => '0.9'],
             ['loc' => url('/login'), 'priority' => '0.5'],

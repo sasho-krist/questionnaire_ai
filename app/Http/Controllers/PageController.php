@@ -30,4 +30,9 @@ class PageController extends Controller
     {
         return view('pages.faq');
     }
+
+    public function apiDocs(): View
+    {
+        return view('pages.api-docs');
+    }
 }

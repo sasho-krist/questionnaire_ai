@@ -24,6 +24,7 @@
 - [Настройки на теста](#настройки-на-теста)
 - [Попълване, време и резултат](#попълване-време-и-резултат)
 - [Списък с анкети: филтри, копие, експорт, споделяне](#списък-с-анкети-филтри-копие-експорт-споделяне)
+- [REST API (Sanctum)](#rest-api-sanctum)
 - [Структура на проекта](#структура-на-проекта)
 - [SSL / OpenAI под Windows](#ssl--openai-под-windows)
 - [Тестове](#тестове)
@@ -276,6 +277,7 @@ php artisan serve
 |---------|----------|
 | `/` | За гости: **лендинг**; за влезли потребители: пренасочване към списъка с анкети. |
 | `/faq`, `/terms`, `/privacy` | ЧЗВ, общи условия, поверителност. |
+| `/api-docs` | Публична страница с инструкции за **REST API** (маршрути, примери, бележки). |
 | `/sitemap.xml`, `/robots.txt` | Карта на сайта и robots за търсачки. |
 
 В оформлението има **банер за бисквитки** (локално съгласие в `localStorage`). Meta заглавие/описание и **Open Graph** използват настройки от `config/seo.php` (вкл. подразбирано OG изображение, напр. под `public/images/`).
@@ -352,16 +354,38 @@ php artisan serve
 
 ---
 
+## REST API (Sanctum)
+
+JSON API под префикс **`/api`**, удостоверяване с **Laravel Sanctum** (Bearer token). Базов адрес: **`{APP_URL}/api`**.
+
+**Пълни инструкции на сайта:** отворете **`/api-docs`** (напр. `https://вашият-домейн/api-docs`) — таблици с всички маршрути, пример за `curl` и бележки за UUID, собственик на анкетата и чувствителни данни.
+
+### Кратък преглед
+
+| Действие | Метод и път |
+|----------|-------------|
+| Вход | `POST /api/login` — тяло: `email`, `password`; отговор: `token`, `user` |
+| Текущ потребител / изход | `GET /api/user`, `POST /api/logout` (с `Authorization: Bearer …`) |
+| Списък анкети | `GET /api/questionnaires` — само **вашите** анкети; query: `q`, `status` |
+| Създаване и AI | `POST /api/questionnaires` → заглавия; `POST …/select-title` → секции/въпроси; `GET …/build`, `POST …/generate-more`, `POST …/settings`, `POST …/finish` |
+| Резултати / CSV | `GET …/results`, `GET …/export-results` — **само за собственика** на анкетата |
+| Попълване | `POST /api/questionnaires/{uuid}/attempts` → `GET/POST /api/attempts/{attemptUuid}/…` |
+
+Във всички защитени заявки изпращайте заглавие **`Authorization: Bearer &lt;token&gt;`** и по желание **`Accept: application/json`**. Анкетите в URL се адресират по **`uuid`**, не по числов `id`. Маршрутите са дефинирани в `routes/api.php`; контролерите — под `app/Http/Controllers/Api/`.
+
+---
+
 ## Структура на проекта (важни файлове)
 
 ```
 app/
   Http/Controllers/
     Auth/                          # Login, Register, Forgot/Reset password
-    PageController.php             # начало, terms, faq, privacy
+    PageController.php             # начало, terms, faq, privacy, api-docs
     SeoController.php              # sitemap.xml, robots.txt
     QuestionnaireController.php    # CRUD, филтри, duplicate, export, настройки, генериране
     QuestionnairePlayController.php # опити, отговори, резултат
+    Api/                           # REST: Auth, Questionnaire, Attempt
   Models/
     User.php
     Questionnaire.php
@@ -376,9 +400,10 @@ config/services.php               # OpenAI
 config/mail.php
 config/seo.php
 routes/web.php
+routes/api.php
 resources/views/
   layouts/app.blade.php
-  pages/landing.blade.php, faq, terms, …
+  pages/landing.blade.php, faq, api-docs, terms, …
   auth/*.blade.php
   components/cookie-banner.blade.php
   questionnaires/*.blade.php
