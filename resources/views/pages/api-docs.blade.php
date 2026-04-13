@@ -15,7 +15,7 @@
     <div class="alert alert-light border shadow-sm mb-4" role="note">
         <strong class="text-body">Удостоверяване:</strong> след вход получавате <strong>Bearer token</strong> (Laravel Sanctum).
         Изпращайте го в заглавие <code>Authorization: Bearer &lt;token&gt;</code> и по желание <code>Accept: application/json</code>.
-        Анкетите в пътищата се идентифицират с <strong>UUID</strong> (поле <code>uuid</code>), не с числово <code>id</code>.
+        Анкетите в пътищата се идентифицират с <strong>UUID</strong> (поле <code>uuid</code>), не с числово <code>id</code>. Секциите и въпросите в API се адресират с <strong>числови</strong> <code>id</code> от отговора на <code>GET /api/questionnaires/{uuid}/build</code>.
     </div>
 
     <div class="card shadow-sm mb-4">
@@ -64,7 +64,7 @@
             <h2 class="h6 fw-semibold mb-0"><i class="bi bi-collection me-2"></i>Анкети (създаване и редакция)</h2>
         </div>
         <div class="card-body">
-            <p class="small text-secondary">Списъкът <code>GET /api/questionnaires</code> връща само <strong>вашите</strong> анкети. Query: <code>q</code> (търсене), <code>status</code> (<code>draft</code>, <code>titles_ready</code>, <code>building</code>, <code>completed</code>).</p>
+            <p class="small text-secondary">Списъкът <code>GET /api/questionnaires</code> връща само <strong>вашите</strong> анкети. Query: <code>q</code> (търсене по заглавие на анкетата, ключови думи или <strong>заглавие на секция</strong>), <code>status</code> (<code>draft</code>, <code>titles_ready</code>, <code>building</code>, <code>completed</code>).</p>
             <div class="table-responsive">
                 <table class="table table-sm align-middle mb-0">
                     <thead>
@@ -114,6 +114,31 @@
                             <td><span class="badge text-bg-primary">GET</span></td>
                             <td><code>/api/questionnaires/{uuid}/build</code></td>
                             <td>Пълни секции и въпроси с верни индекси (редакция).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge text-bg-warning text-dark">PATCH</span></td>
+                            <td><code>/api/questionnaires/{uuid}/title</code></td>
+                            <td>JSON: <code>chosen_title</code> — заглавие на анкетата (като в списъка). Само при <code>building</code> / <code>completed</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge text-bg-warning text-dark">PATCH</span></td>
+                            <td><code>/api/questionnaires/{uuid}/sections/{sectionId}</code></td>
+                            <td>JSON: <code>title</code> — заглавие на секцията. <code>sectionId</code> е числов <code>id</code> от <code>GET …/build</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge text-bg-danger">DELETE</span></td>
+                            <td><code>/api/questionnaires/{uuid}/sections/{sectionId}</code></td>
+                            <td>Изтриване на секцията (и въпросите ѝ). Не се допуска при единствена секция — <code>422</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge text-bg-warning text-dark">PATCH</span></td>
+                            <td><code>/api/questionnaires/{uuid}/questions/{questionId}</code></td>
+                            <td>За множествен избор: <code>body</code>, <code>choice_options</code> (масив от 4 низа), <code>correct_option</code> (0–3). За свободен отговор: само <code>body</code>. <code>questionId</code> — числов <code>id</code> от <code>GET …/build</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge text-bg-danger">DELETE</span></td>
+                            <td><code>/api/questionnaires/{uuid}/questions/{questionId}</code></td>
+                            <td>Изтриване на въпрос.</td>
                         </tr>
                         <tr>
                             <td><span class="badge text-bg-secondary">POST</span></td>

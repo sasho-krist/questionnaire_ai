@@ -21,6 +21,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/questionnaires/{questionnaire}/titles', [QuestionnaireApiController::class, 'titles']);
     Route::post('/questionnaires/{questionnaire}/select-title', [QuestionnaireApiController::class, 'selectTitle']);
     Route::get('/questionnaires/{questionnaire}/build', [QuestionnaireApiController::class, 'build']);
+    Route::patch('/questionnaires/{questionnaire}/title', [QuestionnaireApiController::class, 'updateChosenTitle']);
+    Route::patch('/questionnaires/{questionnaire}/sections/{section}', [QuestionnaireApiController::class, 'updateSection']);
+    Route::delete('/questionnaires/{questionnaire}/sections/{section}', [QuestionnaireApiController::class, 'destroySection']);
+    Route::patch('/questionnaires/{questionnaire}/questions/{question}', [QuestionnaireApiController::class, 'updateQuestion']);
+    Route::delete('/questionnaires/{questionnaire}/questions/{question}', [QuestionnaireApiController::class, 'destroyQuestion']);
     Route::post('/questionnaires/{questionnaire}/generate-more', [QuestionnaireApiController::class, 'generateMore']);
     Route::post('/questionnaires/{questionnaire}/settings', [QuestionnaireApiController::class, 'updateSettings']);
     Route::post('/questionnaires/{questionnaire}/finish', [QuestionnaireApiController::class, 'finish']);

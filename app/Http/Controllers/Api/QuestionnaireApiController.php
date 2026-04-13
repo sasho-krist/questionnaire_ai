@@ -33,7 +33,10 @@ class QuestionnaireApiController extends Controller
             $query->where(function ($sub) use ($like): void {
                 $sub->where('user_title', 'like', $like)
                     ->orWhere('chosen_title', 'like', $like)
-                    ->orWhere('topic_keywords', 'like', $like);
+                    ->orWhere('topic_keywords', 'like', $like)
+                    ->orWhereHas('sections', function ($s) use ($like): void {
+                        $s->where('title', 'like', $like);
+                    });
             });
         }
 
@@ -184,6 +187,114 @@ class QuestionnaireApiController extends Controller
 
         return response()->json([
             'questionnaire' => $this->questionnaireBuilder($questionnaire),
+        ]);
+    }
+
+    public function updateChosenTitle(Request $request, Questionnaire $questionnaire): JsonResponse
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
+        if (! in_array($questionnaire->status, ['building', 'completed'], true)) {
+            return response()->json(['message' => 'Редакция на заглавието е възможна при статус building или completed.'], 409);
+        }
+
+        $validated = $request->validate([
+            'chosen_title' => ['required', 'string', 'max:255'],
+        ], [], [
+            'chosen_title' => 'заглавие на анкетата',
+        ]);
+
+        $questionnaire->update(['chosen_title' => $validated['chosen_title']]);
+
+        return response()->json([
+            'questionnaire' => $this->questionnaireBuilder($questionnaire->fresh(['sections.questions'])),
+            'message' => 'Заглавието на анкетата е запазено.',
+        ]);
+    }
+
+    public function updateSection(Request $request, Questionnaire $questionnaire, QuestionnaireSection $section): JsonResponse
+    {
+        $this->authorizeEditableStructure($questionnaire);
+        $this->assertSectionBelongs($questionnaire, $section);
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+        ], [], [
+            'title' => 'заглавие на секция',
+        ]);
+
+        $section->update(['title' => $validated['title']]);
+
+        return response()->json([
+            'questionnaire' => $this->questionnaireBuilder($questionnaire->fresh(['sections.questions'])),
+            'message' => 'Заглавието на секцията е обновено.',
+        ]);
+    }
+
+    public function destroySection(Questionnaire $questionnaire, QuestionnaireSection $section): JsonResponse
+    {
+        $this->authorizeEditableStructure($questionnaire);
+        $this->assertSectionBelongs($questionnaire, $section);
+
+        if ($questionnaire->sections()->count() <= 1) {
+            return response()->json(['message' => 'Не можете да изтриете единствената секция.'], 422);
+        }
+
+        $section->delete();
+
+        return response()->json([
+            'questionnaire' => $this->questionnaireBuilder($questionnaire->fresh(['sections.questions'])),
+            'message' => 'Секцията е изтрита.',
+        ]);
+    }
+
+    public function updateQuestion(Request $request, Questionnaire $questionnaire, QuestionnaireQuestion $question): JsonResponse
+    {
+        $this->authorizeEditableStructure($questionnaire);
+        $this->assertQuestionBelongs($questionnaire, $question);
+
+        if ($question->hasMultipleChoice()) {
+            $validated = $request->validate([
+                'body' => ['required', 'string', 'max:10000'],
+                'choice_options' => ['required', 'array', 'size:4'],
+                'choice_options.*' => ['required', 'string', 'max:2000'],
+                'correct_option' => ['required', 'integer', Rule::in([0, 1, 2, 3])],
+            ], [], [
+                'body' => 'въпрос',
+                'choice_options' => 'опции',
+                'correct_option' => 'верен отговор',
+            ]);
+
+            $question->update([
+                'body' => $validated['body'],
+                'choice_options' => array_values($validated['choice_options']),
+                'correct_option' => (int) $validated['correct_option'],
+            ]);
+        } else {
+            $validated = $request->validate([
+                'body' => ['required', 'string', 'max:10000'],
+            ], [], [
+                'body' => 'въпрос',
+            ]);
+            $question->update(['body' => $validated['body']]);
+        }
+
+        return response()->json([
+            'questionnaire' => $this->questionnaireBuilder($questionnaire->fresh(['sections.questions'])),
+            'message' => 'Въпросът е обновен.',
+        ]);
+    }
+
+    public function destroyQuestion(Questionnaire $questionnaire, QuestionnaireQuestion $question): JsonResponse
+    {
+        $this->authorizeEditableStructure($questionnaire);
+        $this->assertQuestionBelongs($questionnaire, $question);
+
+        $question->delete();
+
+        return response()->json([
+            'questionnaire' => $this->questionnaireBuilder($questionnaire->fresh(['sections.questions'])),
+            'message' => 'Въпросът е изтрит.',
         ]);
     }
 
@@ -421,6 +532,30 @@ class QuestionnaireApiController extends Controller
             $questionnaire->user_id !== null && (int) $questionnaire->user_id === (int) auth()->id(),
             403,
             'Можете да променяте само анкети, които сте създали.'
+        );
+    }
+
+    protected function authorizeEditableStructure(Questionnaire $questionnaire): void
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+        abort_unless(
+            in_array($questionnaire->status, ['building', 'completed'], true),
+            403,
+            'Редакция на секции и въпроси не е позволена за този статус.'
+        );
+    }
+
+    protected function assertSectionBelongs(Questionnaire $questionnaire, QuestionnaireSection $section): void
+    {
+        abort_unless((int) $section->questionnaire_id === (int) $questionnaire->id, 404);
+    }
+
+    protected function assertQuestionBelongs(Questionnaire $questionnaire, QuestionnaireQuestion $question): void
+    {
+        $question->loadMissing('section');
+        abort_unless(
+            $question->section !== null && (int) $question->section->questionnaire_id === (int) $questionnaire->id,
+            404
         );
     }
 
