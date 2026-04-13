@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/questionnaires/{questionnaire}/titles', [QuestionnaireController::class, 'selectTitle'])->name('questionnaires.select-title');
 
     Route::get('/questionnaires/{questionnaire}/build', [QuestionnaireController::class, 'build'])->name('questionnaires.build');
+    Route::patch('/questionnaires/{questionnaire}/title', [QuestionnaireController::class, 'updateChosenTitle'])->name('questionnaires.title.update');
     Route::post('/questionnaires/{questionnaire}/settings', [QuestionnaireController::class, 'updateSettings'])->name('questionnaires.settings');
     Route::post('/questionnaires/{questionnaire}/generate-more', [QuestionnaireController::class, 'generateMore'])->name('questionnaires.generate-more');
     Route::patch('/questionnaires/{questionnaire}/sections/{section}', [QuestionnaireController::class, 'updateSection'])->name('questionnaires.section.update');

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
 
 class Questionnaire extends Model
@@ -52,6 +53,18 @@ class Questionnaire extends Model
     public function sections(): HasMany
     {
         return $this->hasMany(QuestionnaireSection::class)->orderBy('sort_order');
+    }
+
+    public function questions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            QuestionnaireQuestion::class,
+            QuestionnaireSection::class,
+            'questionnaire_id',
+            'section_id',
+            'id',
+            'id'
+        );
     }
 
     public function attempts(): HasMany

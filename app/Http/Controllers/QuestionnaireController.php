@@ -24,7 +24,12 @@ class QuestionnaireController extends Controller
 
     public function index(Request $request): View
     {
-        $query = Questionnaire::query()->with('user');
+        $query = Questionnaire::query()
+            ->with([
+                'user',
+                'sections' => static fn ($q) => $q->orderBy('sort_order'),
+            ])
+            ->withCount(['sections', 'questions']);
 
         $search = trim((string) $request->input('q', ''));
         if ($search !== '') {
@@ -32,7 +37,10 @@ class QuestionnaireController extends Controller
             $query->where(function ($sub) use ($like): void {
                 $sub->where('user_title', 'like', $like)
                     ->orWhere('chosen_title', 'like', $like)
-                    ->orWhere('topic_keywords', 'like', $like);
+                    ->orWhere('topic_keywords', 'like', $like)
+                    ->orWhereHas('sections', function ($s) use ($like): void {
+                        $s->where('title', 'like', $like);
+                    });
             });
         }
 
@@ -341,6 +349,26 @@ class QuestionnaireController extends Controller
         }
 
         return redirect()->route('questionnaires.build', $questionnaire);
+    }
+
+    public function updateChosenTitle(Request $request, Questionnaire $questionnaire): RedirectResponse
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+
+        if (! in_array($questionnaire->status, ['building', 'completed'], true)) {
+            return redirect()->route('questionnaires.build', $questionnaire);
+        }
+
+        $validated = $request->validate([
+            'chosen_title' => ['required', 'string', 'max:255'],
+        ], [], [
+            'chosen_title' => 'заглавие на анкетата',
+        ]);
+
+        $questionnaire->update(['chosen_title' => $validated['chosen_title']]);
+
+        return redirect()->route('questionnaires.build', $questionnaire)
+            ->with('status', 'Заглавието на анкетата е запазено.');
     }
 
     public function updateSettings(Request $request, Questionnaire $questionnaire): RedirectResponse

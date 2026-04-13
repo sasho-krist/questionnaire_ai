@@ -4,7 +4,29 @@
 
 @section('content')
     <div class="page-header">
-        <h1 class="h2 fw-bold text-dark mb-1">{{ $questionnaire->chosen_title }}</h1>
+        @if (in_array($questionnaire->status, ['building', 'completed'], true))
+            <form method="post" action="{{ route('questionnaires.title.update', $questionnaire) }}" class="mb-3">
+                @csrf
+                @method('PATCH')
+                <label for="questionnaire-chosen-title" class="form-label small text-secondary mb-1">Заглавие на анкетата</label>
+                <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-end">
+                    <div class="flex-grow-1">
+                        <input type="text" name="chosen_title" id="questionnaire-chosen-title"
+                               class="form-control form-control-lg fw-semibold @error('chosen_title') is-invalid @enderror"
+                               value="{{ old('chosen_title', $questionnaire->chosen_title) }}" maxlength="255" required>
+                        @error('chosen_title')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <button type="submit" class="btn btn-primary flex-shrink-0">
+                        <i class="bi bi-check2 me-1"></i>Запази заглавието
+                    </button>
+                </div>
+                <p class="text-secondary small mb-0 mt-2">Това заглавие се показва в списъка с анкети и в играта.</p>
+            </form>
+        @else
+            <h1 class="h2 fw-bold text-dark mb-1">{{ $questionnaire->chosen_title }}</h1>
+        @endif
         <p class="text-secondary mb-0">
             @if ($questionnaire->status === 'completed')
                 <span class="badge text-bg-success me-2">Завършена</span>

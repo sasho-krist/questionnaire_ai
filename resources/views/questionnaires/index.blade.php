@@ -63,6 +63,20 @@
                         <div class="row align-items-center g-3">
                             <div class="col-md">
                                 <h2 class="h6 fw-semibold mb-1 text-body-emphasis">{{ $q->chosen_title ?? $q->user_title }}</h2>
+                                @if ($q->sections->isNotEmpty())
+                                    <div class="small text-body mb-1">
+                                        <span class="text-muted">Секции:</span>
+                                        @foreach ($q->sections as $i => $sec)
+                                            @if ($i > 0)<span class="text-muted px-1">·</span>@endif
+                                            <span title="{{ $sec->title }}">{{ \Illuminate\Support\Str::limit($sec->title, 72) }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                <div class="small text-body-secondary mb-1">
+                                    {{ $q->sections_count }} {{ $q->sections_count === 1 ? 'секция' : 'секции' }}
+                                    ·
+                                    {{ $q->questions_count }} {{ $q->questions_count === 1 ? 'въпрос' : 'въпроса' }}
+                                </div>
                                 <div class="d-flex flex-wrap align-items-center gap-2 small text-body-secondary">
                                     <span>От:</span>
                                     <span class="text-body">{{ $q->user?->name ?? '—' }}</span>
@@ -77,7 +91,12 @@
                                     @else
                                         <span class="badge rounded-pill text-bg-secondary">{{ $q->status }}</span>
                                     @endif
-                                    <span class="text-muted">· {{ $q->created_at->diffForHumans() }}</span>
+                                    <span class="text-muted">·</span>
+                                    <span title="{{ $q->created_at->timezone(config('app.timezone'))->format('d.m.Y H:i') }}">Създадена {{ $q->created_at->diffForHumans() }}</span>
+                                    @if ($q->updated_at && $q->updated_at->greaterThan($q->created_at))
+                                        <span class="text-muted">·</span>
+                                        <span title="{{ $q->updated_at->timezone(config('app.timezone'))->format('d.m.Y H:i') }}">Обновена {{ $q->updated_at->diffForHumans() }}</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-auto">

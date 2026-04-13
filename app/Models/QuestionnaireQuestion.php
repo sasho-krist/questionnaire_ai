@@ -15,6 +15,9 @@ class QuestionnaireQuestion extends Model
         'correct_option',
     ];
 
+    /** @var list<string> */
+    protected $touches = ['section'];
+
     protected function casts(): array
     {
         return [
@@ -26,6 +29,13 @@ class QuestionnaireQuestion extends Model
     public function section(): BelongsTo
     {
         return $this->belongsTo(QuestionnaireSection::class, 'section_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleted(function (QuestionnaireQuestion $question): void {
+            $question->section?->questionnaire?->touch();
+        });
     }
 
     public function hasMultipleChoice(): bool

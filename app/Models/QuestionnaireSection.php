@@ -14,9 +14,19 @@ class QuestionnaireSection extends Model
         'title',
     ];
 
+    /** @var list<string> */
+    protected $touches = ['questionnaire'];
+
     public function questionnaire(): BelongsTo
     {
         return $this->belongsTo(Questionnaire::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (QuestionnaireSection $section): void {
+            $section->questionnaire?->touch();
+        });
     }
 
     public function questions(): HasMany
