@@ -396,4 +396,108 @@ class QuestionnaireController extends Controller
         return redirect()->route('questionnaires.index')
             ->with('status', 'Анкетата е изтрита.');
     }
+
+    public function updateSection(Request $request, Questionnaire $questionnaire, QuestionnaireSection $section): RedirectResponse
+    {
+        $this->authorizeBuildingQuestionnaire($questionnaire);
+        $this->assertSectionBelongs($questionnaire, $section);
+
+        $field = 'section_title_'.$section->id;
+        $validated = $request->validate([
+            $field => ['required', 'string', 'max:255'],
+        ], [], [
+            $field => 'заглавие на секция',
+        ]);
+
+        $section->update(['title' => $validated[$field]]);
+
+        return redirect()->route('questionnaires.build', $questionnaire)
+            ->with('status', 'Заглавието на секцията е обновено.');
+    }
+
+    public function destroySection(Questionnaire $questionnaire, QuestionnaireSection $section): RedirectResponse
+    {
+        $this->authorizeBuildingQuestionnaire($questionnaire);
+        $this->assertSectionBelongs($questionnaire, $section);
+
+        if ($questionnaire->sections()->count() <= 1) {
+            return redirect()->route('questionnaires.build', $questionnaire)
+                ->withErrors(['section' => 'Не можете да изтриете единствената секция.']);
+        }
+
+        $section->delete();
+
+        return redirect()->route('questionnaires.build', $questionnaire)
+            ->with('status', 'Секцията е изтрита.');
+    }
+
+    public function updateQuestion(Request $request, Questionnaire $questionnaire, QuestionnaireQuestion $question): RedirectResponse
+    {
+        $this->authorizeBuildingQuestionnaire($questionnaire);
+        $this->assertQuestionBelongs($questionnaire, $question);
+
+        if ($question->hasMultipleChoice()) {
+            $validated = $request->validate([
+                'body' => ['required', 'string', 'max:10000'],
+                'choice_options' => ['required', 'array', 'size:4'],
+                'choice_options.*' => ['required', 'string', 'max:2000'],
+                'correct_option' => ['required', 'integer', Rule::in([0, 1, 2, 3])],
+            ], [], [
+                'body' => 'въпрос',
+                'choice_options' => 'опции',
+                'correct_option' => 'верен отговор',
+            ]);
+
+            $question->update([
+                'body' => $validated['body'],
+                'choice_options' => array_values($validated['choice_options']),
+                'correct_option' => (int) $validated['correct_option'],
+            ]);
+        } else {
+            $validated = $request->validate([
+                'body' => ['required', 'string', 'max:10000'],
+            ], [], [
+                'body' => 'въпрос',
+            ]);
+            $question->update(['body' => $validated['body']]);
+        }
+
+        return redirect()->route('questionnaires.build', $questionnaire)
+            ->with('status', 'Въпросът е обновен.');
+    }
+
+    public function destroyQuestion(Questionnaire $questionnaire, QuestionnaireQuestion $question): RedirectResponse
+    {
+        $this->authorizeBuildingQuestionnaire($questionnaire);
+        $this->assertQuestionBelongs($questionnaire, $question);
+
+        $question->delete();
+
+        return redirect()->route('questionnaires.build', $questionnaire)
+            ->with('status', 'Въпросът е изтрит.');
+    }
+
+    protected function authorizeBuildingQuestionnaire(Questionnaire $questionnaire): void
+    {
+        $this->authorizeOwnedQuestionnaire($questionnaire);
+        abort_unless(
+            in_array($questionnaire->status, ['building', 'completed'], true),
+            403,
+            'Редакция на секции и въпроси не е позволена за този статус.'
+        );
+    }
+
+    protected function assertSectionBelongs(Questionnaire $questionnaire, QuestionnaireSection $section): void
+    {
+        abort_unless((int) $section->questionnaire_id === (int) $questionnaire->id, 404);
+    }
+
+    protected function assertQuestionBelongs(Questionnaire $questionnaire, QuestionnaireQuestion $question): void
+    {
+        $question->loadMissing('section');
+        abort_unless(
+            $question->section !== null && (int) $question->section->questionnaire_id === (int) $questionnaire->id,
+            404
+        );
+    }
 }

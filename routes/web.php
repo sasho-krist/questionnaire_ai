@@ -59,6 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/questionnaires/{questionnaire}/build', [QuestionnaireController::class, 'build'])->name('questionnaires.build');
     Route::post('/questionnaires/{questionnaire}/settings', [QuestionnaireController::class, 'updateSettings'])->name('questionnaires.settings');
     Route::post('/questionnaires/{questionnaire}/generate-more', [QuestionnaireController::class, 'generateMore'])->name('questionnaires.generate-more');
+    Route::patch('/questionnaires/{questionnaire}/sections/{section}', [QuestionnaireController::class, 'updateSection'])->name('questionnaires.section.update');
+    Route::delete('/questionnaires/{questionnaire}/sections/{section}', [QuestionnaireController::class, 'destroySection'])->name('questionnaires.section.destroy');
+    Route::patch('/questionnaires/{questionnaire}/questions/{question}', [QuestionnaireController::class, 'updateQuestion'])->name('questionnaires.question.update');
+    Route::delete('/questionnaires/{questionnaire}/questions/{question}', [QuestionnaireController::class, 'destroyQuestion'])->name('questionnaires.question.destroy');
     Route::post('/questionnaires/{questionnaire}/finish', [QuestionnaireController::class, 'finish'])->name('questionnaires.finish');
 
     Route::get('/questionnaires/{questionnaire}/play/start', [QuestionnairePlayController::class, 'start'])->name('questionnaires.play.start');
