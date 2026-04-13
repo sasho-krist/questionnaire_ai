@@ -2,7 +2,7 @@
 
 @section('title', 'Начало')
 
-@section('meta_description', 'Questionnaire AI: създавайте тестове и анкети с изкуствен интелект, точкуване, резултати и споделяне. Регистрирайте се безплатно.')
+@section('meta_description', 'Questionnaire AI: AI анкети, REST API с Sanctum, точкуване, резултати и споделяне. Регистрирайте се безплатно.')
 
 @section('content')
     <div class="text-center py-4 py-md-5">
@@ -21,26 +21,41 @@
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
+    <div class="row g-4 mb-5 justify-content-center">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="card h-100 border-0 shadow-sm p-4">
                 <div class="text-primary mb-2"><i class="bi bi-stars fs-2"></i></div>
                 <h2 class="h5 fw-semibold text-body">Генериране с AI</h2>
                 <p class="small mb-0 text-body-secondary landing-card-text">Заглавия, секции и въпроси на български чрез OpenAI API — по вашите ключови думи.</p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="card h-100 border-0 shadow-sm p-4">
                 <div class="text-primary mb-2"><i class="bi bi-trophy fs-2"></i></div>
                 <h2 class="h5 fw-semibold text-body">Точки и таймер</h2>
                 <p class="small mb-0 text-body-secondary landing-card-text">Автоматично точкуване при верен отговор и опционален лимит време на въпрос.</p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="card h-100 border-0 shadow-sm p-4">
                 <div class="text-primary mb-2"><i class="bi bi-people fs-2"></i></div>
                 <h2 class="h5 fw-semibold text-body">Резултати</h2>
                 <p class="small mb-0 text-body-secondary landing-card-text">Преглед на опити, експорт в CSV и споделяне на линк за стартиране на теста.</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="text-primary mb-2"><i class="bi bi-code-slash fs-2"></i></div>
+                <h2 class="h5 fw-semibold text-body">REST API</h2>
+                <p class="small mb-2 text-body-secondary landing-card-text">
+                    JSON интерфейс под <code class="user-select-all small">{{ url('/api') }}</code> с Laravel Sanctum (<strong>Bearer token</strong>).
+                    Същите функции като в сайта: анкети, AI генериране, попълване на тестове и резултати — за интеграции и външни приложения.
+                </p>
+                <p class="small mb-0">
+                    <a href="{{ route('api.docs') }}" class="link-primary text-decoration-none fw-medium">
+                        Документация и примери <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </p>
             </div>
         </div>
     </div>
