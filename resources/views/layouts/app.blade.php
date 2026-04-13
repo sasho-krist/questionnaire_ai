@@ -321,23 +321,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('faq') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('faq') }}">
-                                <i class="bi bi-question-circle me-1"></i> ЧЗВ
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('api.docs') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('api.docs') }}">
                                 <i class="bi bi-code-slash me-1"></i> API
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('terms') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('terms') }}">
-                                <i class="bi bi-file-text me-1"></i> Условия
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('privacy') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('privacy') }}">
-                                <i class="bi bi-shield-check me-1"></i> Поверителност
                             </a>
                         </li>
                         <li class="nav-item">
@@ -358,23 +343,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('faq') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('faq') }}">
-                                <i class="bi bi-question-circle me-1"></i> ЧЗВ
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('api.docs') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('api.docs') }}">
                                 <i class="bi bi-code-slash me-1"></i> API
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('terms') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('terms') }}">
-                                <i class="bi bi-file-text me-1"></i> Условия
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 rounded-pill {{ request()->routeIs('privacy') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('privacy') }}">
-                                <i class="bi bi-shield-check me-1"></i> Поверителност
                             </a>
                         </li>
                         <li class="nav-item">
