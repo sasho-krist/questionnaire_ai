@@ -401,6 +401,11 @@
         <div class="container text-center text-muted small">
             <div>{{ config('app.name') }} · AI-генерирани анкети</div>
             <div class="mt-2">
+                <button type="button" class="btn btn-sm btn-warning text-dark fw-semibold rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#donateModal" title="Подкрепете проекта">
+                    <i class="bi bi-heart-fill me-1" aria-hidden="true"></i>Donate
+                </button>
+            </div>
+            <div class="mt-2">
                 <a href="{{ route('terms') }}" class="link-secondary text-decoration-none">Общи условия</a>
                 <span class="text-muted mx-2">·</span>
                 <a href="{{ route('faq') }}" class="link-secondary text-decoration-none">ЧЗВ</a>
