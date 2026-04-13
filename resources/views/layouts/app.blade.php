@@ -279,6 +279,11 @@
                             <i class="bi bi-moon-stars-fill" id="theme-icon-dark" aria-hidden="true"></i>
                         </button>
                     </li>
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-sm btn-warning rounded-pill px-3 text-dark fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#donateModal" title="Подкрепете проекта">
+                            <i class="bi bi-heart-fill me-1" aria-hidden="true"></i>Donate
+                        </button>
+                    </li>
                     @auth
                         <li class="nav-item">
                             <a class="nav-link px-3 rounded-pill {{ request()->routeIs('questionnaires.index') ? 'bg-white bg-opacity-25' : '' }}" href="{{ route('questionnaires.index') }}">
@@ -419,6 +424,8 @@
     </footer>
 
     @include('components.cookie-banner')
+
+    @include('components.donate-modal')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
