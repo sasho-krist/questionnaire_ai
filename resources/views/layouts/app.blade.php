@@ -223,6 +223,31 @@
             color: var(--bs-body-color);
         }
         .navbar-brand { font-weight: 600; letter-spacing: -0.02em; }
+        /* Икона и надпис на един ред в навигацията */
+        #mainNav .navbar-nav .nav-link {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-start;
+            flex-wrap: nowrap !important;
+            white-space: nowrap;
+            gap: 0.125rem;
+        }
+        #mainNav .navbar-nav .nav-link i {
+            flex-shrink: 0;
+        }
+        #mainNav .navbar-nav .btn:not(#theme-toggle) {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            flex-wrap: nowrap !important;
+            white-space: nowrap;
+        }
+        #mainNav .navbar-nav #theme-toggle {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
         .page-header {
             border-left: 4px solid var(--bs-primary);
             padding-left: 1rem;
