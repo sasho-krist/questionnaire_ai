@@ -21,7 +21,7 @@ return [
     | Meta keywords (comma-separated, Bulgarian + English brand terms)
     |--------------------------------------------------------------------------
     */
-    'keywords' => env('SEO_KEYWORDS', 'анкета, анкети, тест, тестове, AI анкета, изкуствен интелект, въпросник, онлайн тест, quiz, questionnaire, OpenAI, Laravel, sasho-dev, Questionnaire AI'),
+    'keywords' => env('SEO_KEYWORDS', 'анкета, анкети, тест, тестове, AI анкета, изкуствен интелект, въпросник, онлайн тест, quiz, questionnaire, OpenAI, Laravel, sasho-dev, Александър Керемидаров, Alexander Keremidarov, Questionnaire AI'),
 
     /*
     |--------------------------------------------------------------------------
